@@ -1,0 +1,86 @@
+log:
+  quiet: false
+  verbosity: 2
+  level: 'warn'
+  file: 'grype-report.txt'
+
+output: [ "table" ]
+output-template-file: ''
+pretty: true
+
+add-cpes-if-none: false
+
+check-for-app-update: false
+
+only-fixed: true
+only-notfixed: false
+ignore-wontfix: ''
+platform: ''
+
+search:
+  scope: 'squashed'
+  unindexed-archives: false
+  indexed-archives: true
+
+ignore: []
+exclude: []
+
+external-sources:
+  enable: false
+
+match:
+  java:
+    using-cpes: true
+
+  jvm:
+    using-cpes: true
+
+  dotnet:
+    using-cpes: false
+
+  golang:
+    using-cpes: false
+    always-use-cpe-for-stdlib: true
+    allow-main-module-pseudo-version-comparison: false
+
+  javascript:
+    using-cpes: false
+
+  python:
+    using-cpes: false
+
+  ruby:
+    using-cpes: false
+
+  rust:
+    using-cpes: false
+
+  stock:
+    using-cpes: true
+fail-on-severity: 'critical'
+
+registry:
+  insecure-skip-tls-verify: false
+  insecure-use-http: false
+  auth: []
+  ca-cert: ''
+show-suppressed: false
+by-cve: false
+name: ''
+default-image-pull-source: ''
+vex-documents: []
+vex-add: []
+match-upstream-kernel-headers: false
+
+db:
+  cache-dir: '~/.cache/grype/db'
+  update-url: 'https://grype.anchore.io/databases'
+  ca-cert: ''
+  auto-update: true
+  validate-by-hash-on-start: true
+  validate-age: true
+  max-allowed-built-age: 120h0m0s
+  require-update-check: false
+  update-available-timeout: 30s
+  update-download-timeout: 5m0s
+  max-update-check-frequency: 2h0m0s
