@@ -10,7 +10,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    name: Checkstyle
+    name: Check Code
     strategy:
       matrix:
         java-version: [ "21" ]
