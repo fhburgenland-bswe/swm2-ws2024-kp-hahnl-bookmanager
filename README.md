@@ -48,11 +48,13 @@ authentication support and high scalability in mind.
 
 ## Endpoints (MLP Scope)
 
-| Method | Path | Description |
-|--------|------|-------------|
-|        |      |             |
+| Method | Path       | Description       |
+|--------|------------|-------------------|
+| POST   | /api/users | Create a new user |
 
 ---
+
+
 
 ## Development Tools
 ### Quality & Security Tools
