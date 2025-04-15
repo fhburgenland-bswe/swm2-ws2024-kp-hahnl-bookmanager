@@ -1,0 +1,367 @@
+openapi: 3.0.4
+info:
+  title: Book Manager - OpenAPI 3.0
+  description: |-
+    This is a Book Management Server based on the OpenAPI 3.0 specification.
+    Some useful links:
+    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
+    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+  termsOfService: https://swagger.io/terms/
+  contact:
+    email: 2310859015@hochschule-burgenland.at
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080/api/v3
+tags:
+  - name: user
+    description: Operations about User Account
+  - name: book
+    description: Everything about a book
+paths:
+  /api/users:
+    post:
+      tags:
+        - user
+      summary: Create a new user account
+      description: Create a new user account with personal data
+      operationId: createUserAccount
+      requestBody:
+        description: Create a new user account with personal data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          description: User Account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '409':
+          description: User already taken
+        '422':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDetails"
+        default:
+          description: Unexpected error
+  /api/users/{username}:
+    get:
+      tags:
+        - user
+      summary: Get user account details
+      description: Get user account details
+      operationId: getUserAccount
+      parameters:
+        - name: username
+          in: path
+          description: The username of user account to return
+          required: true
+          schema:
+            type: string
+            format: '^[a-zA-Z0-9_]{5,20}$'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: User not existing
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+    put:
+      tags:
+        - user
+      summary: Update user account
+      description: Update user account
+      operationId: updateUserAccount
+      parameters:
+        - name: username
+          in: path
+          description: The username of user account to update
+          required: true
+          schema:
+            type: string
+            format: '^[a-zA-Z0-9_]{5,20}$'
+      requestBody:
+        description: Updated user account details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDetails'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: User not existing
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+    delete:
+      tags:
+        - user
+      summary: Delete user account
+      description: Delete user account
+      operationId: deleteUserAccount
+      parameters:
+        - name: username
+          in: path
+          description: The username of user account to delete
+          required: true
+          schema:
+            type: string
+            format: '^[a-zA-Z0-9_]{5,20}$'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: User not existing
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+  /api/users/{username}/books:
+    get:
+      tags:
+        - book
+      summary: List all books from the user
+      description: List all books from the user's personal Library
+      operationId: listUsersBooks
+      parameters:
+        - name: username
+          in: path
+          description: The username of user account
+          required: true
+          schema:
+            type: string
+            format: '^[a-zA-Z0-9_]{5,20}$'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                description: List of ISBNs (ISBN-10 or ISBN-13)
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{10}(\d{3})?$'
+        '400':
+          description: User not existing
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+  /api/users/{username}/books/{ISBN}:
+    post:
+      tags:
+        - book
+      summary: Add a book to the user's personal Library
+      description: Add a book to the user's personal Library
+      operationId: addUsersBooks
+      parameters:
+        - name: username
+          in: path
+          description: The username of user account
+          required: true
+          schema:
+            type: string
+            format: '^[a-zA-Z0-9_]{5,20}$'
+        - name: ISBN
+          in: path
+          description: The ISBN of the book to add
+          required: true
+          schema:
+            type: string
+            format: '^\d{10}(\d{3})?$'
+      responses:
+        '201':
+          description: Book added to personal library
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: User or book not existing
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+    delete:
+      tags:
+        - book
+      summary: Remove a book from the user's personal Library
+      description: Remove a book from the user's personal Library
+      operationId: removeUsersBooks
+      parameters:
+        - name: username
+          in: path
+          description: The username of user account
+          required: true
+          schema:
+            type: string
+            format: '^[a-zA-Z0-9_]{5,20}$'
+        - name: ISBN
+          in: path
+          description: The ISBN of the book to remove
+          required: true
+          schema:
+            type: string
+            format: '^\d{10}(\d{3})?$'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: User or book not existing
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+  /api/books/{ISBN}:
+    get:
+      tags:
+        - book
+      summary: Get book details
+      description: Get book details by ISBN
+      operationId: getBookDetails
+      parameters:
+        - name: ISBN
+          in: path
+          description: The ISBN of the book
+          required: true
+          schema:
+            type: string
+            format: '^\d{10}(\d{3})?$'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Book does not exist
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 123
+          nullable: true
+        username:
+          type: string
+          pattern: '^[a-zA-Z0-9_]{5,20}$'
+          example: "Butterfly23"
+          nullable: false
+        firstname:
+          type: string
+          pattern: '^[a-zA-Z]{3,20}$'
+          example: "Max"
+          nullable: false
+        lastname:
+          type: string
+          pattern: '^[a-zA-Z]{3,20}$'
+          example: "Mustermann"
+          nullable: false
+      required:
+        - username
+        - firstname
+        - lastname
+    UserDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 123
+          nullable: true
+        username:
+          type: string
+          example: "Username must be 5-20 characters and contain only letters, numbers, and underscores"
+          nullable: true
+        firstname:
+          type: string
+          example: "Firstname must be 3-20 characters and contain only letters"
+          nullable: true
+        lastname:
+          type: string
+          example: "Lastname must be 3-20 characters and contain only letters"
+          nullable: true
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 123
+          nullable: true
+        isbn:
+          type: string
+          pattern: '^\d{10}(\d{3})?$'
+          example: "012345678"
+          nullable: false
+        title:
+          type: string
+          pattern: '^[a-zA-Z]{3,20}$'
+          example: "Herr der Ringe"
+          nullable: true
+        authors:
+          type: string
+          example: "J.R. Tolkin"
+          nullable: true
+        publishYear:
+          type: integer
+          format: int32
+          example: 2008
+          nullable: true
+        publisher:
+          type: string
+          example: "mybuchdruck"
+          nullable: true
+        language:
+          type: string
+          maxLength: 10
+          example: "de"
+          nullable: true
+        coverLink:
+          type: string
+          example: ""
+          nullable: true
+        coverImage:
+          type: array
+          items:
+            type: integer
+            format: int8
+          description: Binary content of image
+          nullable: true
+        coverKey:
+          type: string
+          example: "14625765"
+          description: OpenLibrary ID of the image
+          nullable: true
+      required:
+        - isbn
