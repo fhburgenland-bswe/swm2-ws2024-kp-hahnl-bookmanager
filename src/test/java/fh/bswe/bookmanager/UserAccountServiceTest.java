@@ -3,8 +3,10 @@ package fh.bswe.bookmanager;
 import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.entity.UserAccount;
 import fh.bswe.bookmanager.exception.UserExistsException;
+import fh.bswe.bookmanager.exception.UserNotFoundException;
 import fh.bswe.bookmanager.repository.UserAccountRepository;
 import fh.bswe.bookmanager.service.UserAccountService;
+import net.bytebuddy.dynamic.DynamicType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,7 +85,7 @@ public class UserAccountServiceTest {
         assertEquals("John", result.getFirstname());
         assertEquals("Doe", result.getLastname());
         assertEquals(1, result.getId());
-        verify(userAccountRepository).save(any(UserAccount.class));
+        verify(userAccountRepository, times(1)).save(any(UserAccount.class));
     }
 
     /**
@@ -105,5 +108,59 @@ public class UserAccountServiceTest {
 
         assertThrows(UserExistsException.class, () -> userAccountService.save(dto));
         verify(userAccountRepository, never()).save(any());
+    }
+
+    /**
+     * Tests successful retrieval of a user account by username.
+     * <p>
+     * This test verifies that the {@link fh.bswe.bookmanager.service.UserAccountService#findUserAccountByUsername(String)}
+     * method returns a correctly mapped {@link fh.bswe.bookmanager.dto.UserAccountDto}
+     * when a user with the given username exists in the repository.
+     * </p>
+     * <p>
+     * It also confirms that the repository method {@code findByUsername} is called exactly once.
+     * </p>
+     *
+     * @throws UserNotFoundException if the user is not found (not expected in this test)
+     */
+    @Test
+    void testFindUserAccount() throws UserNotFoundException {
+        UserAccount storedUserAccount = new UserAccount();
+        storedUserAccount.setId(1);
+        storedUserAccount.setUsername("newuser");
+        storedUserAccount.setFirstname("John");
+        storedUserAccount.setLastname("Doe");
+
+        Optional<UserAccount> userAccount = Optional.of(storedUserAccount);
+        when(userAccountRepository.findByUsername("newuser")).thenReturn(userAccount);
+
+        UserAccountDto result = userAccountService.findUserAccountByUsername("newuser");
+
+        assertEquals("newuser", result.getUsername());
+        assertEquals("John", result.getFirstname());
+        assertEquals("Doe", result.getLastname());
+        assertEquals(1, result.getId());
+        verify(userAccountRepository, times(1)).findByUsername("newuser");
+    }
+
+    /**
+     * Tests the behavior when a user with the given username does not exist.
+     * <p>
+     * This test ensures that the {@link fh.bswe.bookmanager.service.UserAccountService#findUserAccountByUsername(String)}
+     * method throws a {@link fh.bswe.bookmanager.exception.UserNotFoundException}
+     * when the repository returns an empty {@link Optional}.
+     * </p>
+     * <p>
+     * It also verifies that the repository method {@code findByUsername} is called exactly once.
+     * </p>
+     *
+     * @throws UserNotFoundException expected to be thrown by the method under test
+     */
+    @Test
+    void testFindUserAccountNotFound() throws UserNotFoundException {
+        when(userAccountRepository.findByUsername("newuser")).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userAccountService.findUserAccountByUsername("newuser"));
+        verify(userAccountRepository, times(1)).findByUsername("newuser");
     }
 }

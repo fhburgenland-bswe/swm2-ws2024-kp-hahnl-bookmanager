@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fh.bswe.bookmanager.controller.UserAccountController;
 import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.exception.UserExistsException;
+import fh.bswe.bookmanager.exception.UserNotFoundException;
 import fh.bswe.bookmanager.service.UserAccountService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -153,4 +156,74 @@ public class UserAccountControllerTest {
                 .andExpect(jsonPath("$.lastname").value("Lastname must be 3-20 letters only"));
     }
 
+    /**
+     * Tests successful retrieval of a user account by username via HTTP GET.
+     * <p>
+     * Verifies that the {@code /api/users/{username}} endpoint returns a valid JSON response
+     * containing the correct user data when the username exists.
+     * </p>
+     * <p>
+     * Also checks that the HTTP status is 200 (OK) and the returned fields match the expected values.
+     * </p>
+     *
+     * @throws Exception if the request processing fails
+     */
+    @Test
+    void testReadUserAccount() throws Exception {
+        UserAccountDto request = new UserAccountDto();
+        request.setId(1);
+        request.setUsername("validuser");
+        request.setFirstname("John");
+        request.setLastname("Doe");
+
+        when(userAccountService.findUserAccountByUsername("validuser")).thenReturn(request);
+
+        mockMvc.perform(get("/api/users/validuser"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.username").value("validuser"))
+                .andExpect(jsonPath("$.firstname").value("John"))
+                .andExpect(jsonPath("$.lastname").value("Doe"));
+    }
+
+    /**
+     * Tests validation failure when an invalid username is passed as a path variable.
+     * <p>
+     * This test verifies that the controller rejects usernames not matching the required pattern
+     * or length (e.g., "va-") and responds with HTTP 422 (Unprocessable Entity).
+     * </p>
+     * <p>
+     * It also checks that the validation error message is included in the JSON response body.
+     * </p>
+     *
+     * @throws Exception if the request processing fails
+     */
+    @Test
+    void testReadUserAccountValidationFailsUsername() throws Exception {
+        mockMvc.perform(get("/api/users/va"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.['readUserAccount.username']").value("The length must be between 5 and 20 characters"));
+    }
+
+    /**
+     * Tests behavior when a requested user account does not exist.
+     * <p>
+     * This test verifies that the controller throws a {@link fh.bswe.bookmanager.exception.UserNotFoundException}
+     * when the username is not found and responds with HTTP 400 (Bad Request).
+     * </p>
+     * <p>
+     * The repository call is mocked to return an empty result, triggering the exception.
+     * </p>
+     *
+     * @throws Exception if the request processing fails
+     */
+    @Test
+    void testReadUserAccountNotFound() throws Exception {
+        when(userAccountService.findUserAccountByUsername("notfound"))
+                .thenThrow(new UserNotFoundException());
+
+        mockMvc.perform(get("/api/users/notfound"))
+                .andExpect(status().isBadRequest());
+    }
 }

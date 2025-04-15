@@ -48,9 +48,10 @@ authentication support and high scalability in mind.
 
 ## Endpoints (MLP Scope)
 
-| Method | Path       | Description       |
-|--------|------------|-------------------|
-| POST   | /api/users | Create a new user |
+| Method | Path                  | Description       |
+|--------|-----------------------|-------------------|
+| POST   | /api/users            | Create a new user |
+| GET    | /api/users/{username} | Get user details  |
 
 ---
 
@@ -140,4 +141,13 @@ Run unit tests
 ```bash
 ./gradlew test
 ```
+
+If you want to run tests with coverage report use:
+
+```bash
+./gradlew test jacocoTestReport
+```
+
+The report can be found under [build/jacocoHtml/index.html](build/jacocoHtml/index.html).
+
 ---

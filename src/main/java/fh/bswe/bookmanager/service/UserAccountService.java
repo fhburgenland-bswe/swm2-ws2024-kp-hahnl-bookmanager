@@ -3,6 +3,7 @@ package fh.bswe.bookmanager.service;
 import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.entity.UserAccount;
 import fh.bswe.bookmanager.exception.UserExistsException;
+import fh.bswe.bookmanager.exception.UserNotFoundException;
 import fh.bswe.bookmanager.repository.UserAccountRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +26,24 @@ public class UserAccountService {
     }
 
     /**
-     * Finds a user account by the given username.
+     * Retrieves a {@link UserAccountDto} by the given username.
+     * <p>
+     * This method attempts to find a user account with the specified username from the repository.
+     * If no user with the given username exists, a {@link UserNotFoundException} is thrown.
+     * </p>
      *
-     * @param username the username to search for
-     * @return an {@link Optional} containing the user if found, or empty if not
+     * @param username the username of the user account to retrieve
+     * @return the corresponding {@link UserAccountDto} if found
+     * @throws UserNotFoundException if no user account with the given username exists
      */
-    public Optional<UserAccount> findUserByUsername(final String username) {
-        return userAccountRepository.findByUsername(username);
+    public UserAccountDto findUserAccountByUsername(final String username) throws UserNotFoundException {
+        final Optional<UserAccount> userAccount = userAccountRepository.findByUsername(username);
+
+        if (userAccount.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+
+        return mapToDto(userAccount.get());
     }
 
     /**
@@ -50,6 +62,10 @@ public class UserAccountService {
         }
 
         return mapToDto(userAccountRepository.save(mapToEntity(userAccountDto)));
+    }
+
+    private Optional<UserAccount> findUserByUsername(final String username) {
+        return userAccountRepository.findByUsername(username);
     }
 
     private UserAccount mapToEntity(final UserAccountDto userAccountDto) {
