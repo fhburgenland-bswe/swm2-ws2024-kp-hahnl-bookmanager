@@ -15,7 +15,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -310,5 +313,58 @@ public class UserAccountControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.firstname")
                         .value("Firstname must be 3-20 letters only"));
+    }
+
+    /**
+     * Tests successful deletion of a user account via HTTP DELETE request.
+     * <p>
+     * Mocks the service to do nothing when {@code deleteUserAccountByUsername} is called
+     * with a valid username, and verifies that the controller responds with HTTP 200 (OK).
+     * </p>
+     *
+     * @throws Exception if request processing fails
+     */
+    @Test
+    void testDeleteUserAccount() throws Exception {
+        doNothing().when(userAccountService).deleteUserAccountByUsername("validuser");
+
+        mockMvc.perform(delete("/api/users/validuser"))
+                .andExpect(status().isOk());
+    }
+
+    /**
+     * Tests validation failure when deleting a user account with an invalid username.
+     * <p>
+     * Sends a DELETE request with a username that does not meet validation constraints
+     * (e.g. too short). Expects HTTP 422 (Unprocessable Entity) and a structured
+     * validation error response with the correct field and message.
+     * </p>
+     *
+     * @throws Exception if request processing fails
+     */
+    @Test
+    void testDeleteUserAccountValidationFailsUsername() throws Exception {
+        mockMvc.perform(delete("/api/users/va"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.['deleteUserAccount.username']")
+                        .value("The length must be between 5 and 20 characters"));
+    }
+
+    /**
+     * Tests deletion of a non-existent user account.
+     * <p>
+     * Mocks the service to throw a {@link fh.bswe.bookmanager.exception.UserNotFoundException}
+     * when the username is not found. Verifies that the controller returns HTTP 400 (Bad Request).
+     * </p>
+     *
+     * @throws Exception if request processing fails
+     */
+    @Test
+    void testDeleteUserAccountNotFound() throws Exception {
+        doThrow(new UserNotFoundException()).when(userAccountService).deleteUserAccountByUsername("notfound");
+
+        mockMvc.perform(delete("/api/users/notfound"))
+                .andExpect(status().isBadRequest());
     }
 }

@@ -3,9 +3,6 @@ info:
   title: Book Manager - OpenAPI 3.0
   description: |-
     This is a Book Management Server based on the OpenAPI 3.0 specification.
-    Some useful links:
-    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
-    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
   termsOfService: https://swagger.io/terms/
   contact:
     email: 2310859015@hochschule-burgenland.at

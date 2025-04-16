@@ -48,14 +48,14 @@ authentication support and high scalability in mind.
 
 ## Endpoints (MLP Scope)
 
-| Method | Path                  | Description       |
-|--------|-----------------------|-------------------|
-| POST   | /api/users            | Create a new user |
-| GET    | /api/users/{username} | Get user details  |
+| Method | Path                  | Description                   |
+|--------|-----------------------|-------------------------------|
+| POST   | /api/users            | Create a new user             |
+| GET    | /api/users/{username} | Get user details              |
+| PUT    | /api/users/{username} | Update user data              |
+| DELETE | /api/users/{username} | Delete users and associations |
 
 ---
-
-
 
 ## Development Tools
 ### Quality & Security Tools

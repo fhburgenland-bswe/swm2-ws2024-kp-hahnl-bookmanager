@@ -64,6 +64,20 @@ public class UserAccountUpdateDto {
         this.lastname = lastname;
     }
 
+    /**
+     * Checks whether this {@code UserAccountDto} is equal to another object.
+     * <p>
+     * Two {@code UserAccountDto} instances are considered equal if all of the following fields are equal:
+     * <ul>
+     *     <li>{@code firstname}</li>
+     *     <li>{@code lastname}</li>
+     * </ul>
+     * </p>
+     *
+     * @param o the object to compare with this instance
+     * @return {@code true} if the given object is a {@code UserAccountDto} and all
+     *         fields match; {@code false} otherwise
+     */
     @Override
     public boolean equals(final Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -73,6 +87,16 @@ public class UserAccountUpdateDto {
         return Objects.equals(firstname, that.firstname) && Objects.equals(lastname, that.lastname);
     }
 
+    /**
+     * Computes the hash code for this {@code UserAccountDto} based on its fields.
+     * <p>
+     * The hash code is computed using:
+     * {@code firstname}, and {@code lastname}.
+     * This ensures consistency with the {@link #equals(Object)} method.
+     * </p>
+     *
+     * @return the computed hash code for this object
+     */
     @Override
     public int hashCode() {
         return Objects.hash(firstname, lastname);

@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.util.Objects;
+
 
 /**
  * Data Transfer Object (DTO) for transferring user account data between client and server.
@@ -100,5 +102,42 @@ public class UserAccountDto {
      */
     public void setLastname(final String lastname) {
         this.lastname = lastname;
+    }
+
+    /**
+     * Checks whether this {@code UserAccountDto} is equal to another object.
+     * <p>
+     * Two {@code UserAccountDto} instances are considered equal if all of the following fields are equal:
+     * <ul>
+     *     <li>{@code id}</li>
+     * </ul>
+     * </p>
+     *
+     * @param o the object to compare with this instance
+     * @return {@code true} if the given object is a {@code UserAccountDto} and all
+     *         fields match; {@code false} otherwise
+     */
+    @Override
+    public boolean equals(final Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final UserAccountDto that = (UserAccountDto) o;
+        return Objects.equals(id, that.id);
+    }
+
+    /**
+     * Computes the hash code for this {@code UserAccountDto} based on its fields.
+     * <p>
+     * The hash code is computed using:
+     * {@code id}.
+     * This ensures consistency with the {@link #equals(Object)} method.
+     * </p>
+     *
+     * @return the computed hash code for this object
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
