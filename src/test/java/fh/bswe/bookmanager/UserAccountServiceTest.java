@@ -224,5 +224,59 @@ public class UserAccountServiceTest {
 
         assertThrows(UserNotFoundException.class, () -> userAccountService.updateUserAccount("olduser", userAccountUpdateDto));
         verify(userAccountRepository, times(1)).findByUsername("olduser");
+        verify(userAccountRepository, never()).save(any());
+    }
+
+    /**
+     * Tests successful deletion of an existing user account by username.
+     * <p>
+     * This test ensures that when a user with the given username exists,
+     * the service method {@code deleteUserAccountByUsername} retrieves the user and
+     * invokes the repository's {@code delete} method exactly once with the correct user.
+     * </p>
+     *
+     * @throws UserNotFoundException if the user is not found (not expected in this test)
+     */
+    @Test
+    void testDeleteUserAccount() throws UserNotFoundException {
+        UserAccount storedUserAccount = new UserAccount();
+        storedUserAccount.setId(1);
+        storedUserAccount.setUsername("olduser");
+        storedUserAccount.setFirstname("John");
+        storedUserAccount.setLastname("Doe");
+
+        Optional<UserAccount> userAccount = Optional.of(storedUserAccount);
+        when(userAccountRepository.findByUsername("olduser")).thenReturn(userAccount);
+
+        userAccountService.deleteUserAccountByUsername("olduser");
+
+        UserAccount deleteUserAccount = new UserAccount();
+        deleteUserAccount.setId(1);
+        deleteUserAccount.setUsername("olduser");
+        deleteUserAccount.setFirstname("John");
+        deleteUserAccount.setLastname("Doe");
+
+        verify(userAccountRepository, times(1)).delete(deleteUserAccount);
+    }
+
+    /**
+     * Tests the behavior when attempting to delete a non-existent user account.
+     * <p>
+     * Ensures that the service method {@code deleteUserAccountByUsername} throws
+     * a {@link fh.bswe.bookmanager.exception.UserNotFoundException} if the user is not found.
+     * </p>
+     * <p>
+     * Verifies that {@code delete()} is never called on the repository in this case.
+     * </p>
+     *
+     * @throws UserNotFoundException expected exception
+     */
+    @Test
+    void testDeleteUserAccountNotFound() throws UserNotFoundException {
+        when(userAccountRepository.findByUsername("olduser")).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userAccountService.deleteUserAccountByUsername("olduser"));
+        verify(userAccountRepository, times(1)).findByUsername("olduser");
+        verify(userAccountRepository, never()).save(any());
     }
 }

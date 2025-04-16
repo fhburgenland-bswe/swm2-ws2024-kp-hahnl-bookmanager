@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.util.Objects;
+
 /**
  * Represents a user account entity in the book management system.
  * This entity is mapped to the database table {@code user_account} and stores
@@ -105,5 +107,42 @@ public class UserAccount {
      */
     public void setLastname(final String lastname) {
         this.lastname = lastname;
+    }
+
+    /**
+     * Checks whether this {@code UserAccountDto} is equal to another object.
+     * <p>
+     * Two {@code UserAccountDto} instances are considered equal if all of the following fields are equal:
+     * <ul>
+     *     <li>{@code id}</li>
+     * </ul>
+     * </p>
+     *
+     * @param o the object to compare with this instance
+     * @return {@code true} if the given object is a {@code UserAccountDto} and all
+     *         fields match; {@code false} otherwise
+     */
+    @Override
+    public boolean equals(final Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final UserAccount that = (UserAccount) o;
+        return Objects.equals(id, that.id);
+    }
+
+    /**
+     * Computes the hash code for this {@code UserAccountDto} based on its fields.
+     * <p>
+     * The hash code is computed using:
+     * {@code id}.
+     * This ensures consistency with the {@link #equals(Object)} method.
+     * </p>
+     *
+     * @return the computed hash code for this object
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

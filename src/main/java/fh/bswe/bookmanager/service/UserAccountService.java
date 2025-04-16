@@ -94,6 +94,27 @@ public class UserAccountService {
         return mapToDto(userAccountRepository.save(userAccount.get()));
     }
 
+    /**
+     * Deletes a user account by its username.
+     * <p>
+     * Searches for a {@link fh.bswe.bookmanager.entity.UserAccount} using the provided username.
+     * If the user exists, it is deleted from the repository. Otherwise, a
+     * {@link fh.bswe.bookmanager.exception.UserNotFoundException} is thrown.
+     * </p>
+     *
+     * @param username the username of the user account to be deleted
+     * @throws UserNotFoundException if no user with the given username exists
+     */
+    public void deleteUserAccountByUsername(final String username) throws UserNotFoundException {
+        final Optional<UserAccount> userAccount = userAccountRepository.findByUsername(username);
+
+        if (userAccount.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+
+        userAccountRepository.delete(userAccount.get());
+    }
+
     private Optional<UserAccount> findUserByUsername(final String username) {
         return userAccountRepository.findByUsername(username);
     }
