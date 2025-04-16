@@ -1,12 +1,15 @@
 package fh.bswe.bookmanager.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -34,6 +37,9 @@ public class UserAccount {
 
     @Column(length = 20, nullable = false)
     private String lastname;
+
+    @OneToMany(mappedBy = "userAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserBook> userBooks;
 
     /**
      * Returns the unique identifier of the user account.
@@ -107,6 +113,31 @@ public class UserAccount {
      */
     public void setLastname(final String lastname) {
         this.lastname = lastname;
+    }
+
+    /**
+     * Returns the list of {@link UserBook} entries associated with this user.
+     * <p>
+     * Each {@link UserBook} represents a relationship between this user and a book,
+     * possibly including additional metadata such as rating or comments.
+     * </p>
+     *
+     * @return the list of user-book relationships associated with this user
+     */
+    public List<UserBook> getUserBooks() {
+        return userBooks;
+    }
+
+    /**
+     * Sets the list of {@link UserBook} entries associated with this user.
+     * <p>
+     * This replaces the current list of user-book relationships.
+     * </p>
+     *
+     * @param userBooks the new list of user-book relationships to associate with this user
+     */
+    public void setUserBooks(final List<UserBook> userBooks) {
+        this.userBooks = userBooks;
     }
 
     /**

@@ -1,13 +1,16 @@
 package fh.bswe.bookmanager.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -55,6 +58,9 @@ public class Book {
 
     @Column(length = 10)
     private String language;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserBook> userBooks;
 
     /**
      * Returns the ID of the book (primary key).
@@ -206,11 +212,11 @@ public class Book {
      * A defensive copy is returned to prevent external modification.
      * </p>
      *
-     * @return byte array of the cover image, or {@code null} if none
+     * @return byte array of the cover image, or an empty array if none
      */
     public byte[] getCoverImage() {
         if (coverImage == null) {
-            return null;
+            return new byte[0];
         } else {
             final byte[] tempCoverImage = new byte[coverImage.length];
             System.arraycopy(coverImage, 0, tempCoverImage, 0, coverImage.length);
@@ -228,7 +234,7 @@ public class Book {
      */
     public void setCoverImage(final byte[] coverImage) {
         if (coverImage == null) {
-            this.coverImage = null;
+            this.coverImage = new byte[0];
         } else {
             final byte[] tempCoverImage = new byte[coverImage.length];
             System.arraycopy(coverImage, 0, tempCoverImage, 0, coverImage.length);
@@ -252,6 +258,33 @@ public class Book {
      */
     public void setLanguage(final String language) {
         this.language = language;
+    }
+
+    /**
+     * Returns the list of {@link UserBook} entries associated with this book.
+     * <p>
+     * This represents the many-to-one relationship between users and this book.
+     * Each {@link UserBook} instance links a {@link UserAccount} to this book with
+     * additional metadata like rating or comment.
+     * </p>
+     *
+     * @return list of user-book relations referencing this book
+     */
+    public List<UserBook> getUserBooks() {
+        return userBooks;
+    }
+
+    /**
+     * Sets the list of {@link UserBook} entries associated with this book.
+     * <p>
+     * This replaces the current list of user-book relations for this book.
+     * Typically used when managing or updating user associations programmatically.
+     * </p>
+     *
+     * @param userBooks the list of user-book relations to associate with this book
+     */
+    public void setUserBooks(final List<UserBook> userBooks) {
+        this.userBooks = userBooks;
     }
 
     /**
