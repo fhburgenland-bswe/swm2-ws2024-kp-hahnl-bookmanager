@@ -3,6 +3,7 @@ package fh.bswe.bookmanager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fh.bswe.bookmanager.controller.UserAccountController;
 import fh.bswe.bookmanager.dto.UserAccountDto;
+import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
 import fh.bswe.bookmanager.exception.UserExistsException;
 import fh.bswe.bookmanager.exception.UserNotFoundException;
 import fh.bswe.bookmanager.service.UserAccountService;
@@ -14,9 +15,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -115,7 +116,8 @@ public class UserAccountControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.username").value("Username must be 5-20 characters and contain only letters, numbers, and underscores"));
+                .andExpect(jsonPath("$.username")
+                        .value("Username must be 5-20 characters and contain only letters, numbers, and underscores"));
     }
 
     /**
@@ -134,7 +136,8 @@ public class UserAccountControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.firstname").value("Firstname must be 3-20 letters only"));
+                .andExpect(jsonPath("$.firstname")
+                        .value("Firstname must be 3-20 letters only"));
     }
 
     /**
@@ -153,7 +156,8 @@ public class UserAccountControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.lastname").value("Lastname must be 3-20 letters only"));
+                .andExpect(jsonPath("$.lastname")
+                        .value("Lastname must be 3-20 letters only"));
     }
 
     /**
@@ -203,7 +207,8 @@ public class UserAccountControllerTest {
         mockMvc.perform(get("/api/users/va"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.['readUserAccount.username']").value("The length must be between 5 and 20 characters"));
+                .andExpect(jsonPath("$.['readUserAccount.username']")
+                        .value("The length must be between 5 and 20 characters"));
     }
 
     /**
@@ -225,5 +230,85 @@ public class UserAccountControllerTest {
 
         mockMvc.perform(get("/api/users/notfound"))
                 .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Integration test for a successful HTTP PUT request to update a user account.
+     * <p>
+     * Verifies that a valid request with a known username returns a 200 OK response
+     * and the updated user data in the response body.
+     * </p>
+     *
+     * @throws Exception if the request processing fails
+     */
+    @Test
+    void testUpdateUserAccount() throws Exception {
+        UserAccountUpdateDto request = new UserAccountUpdateDto();
+        request.setFirstname("John");
+        request.setLastname("Smith");
+
+        UserAccountDto response = new UserAccountDto();
+        response.setId(1);
+        response.setUsername("validuser");
+        response.setFirstname("John");
+        response.setLastname("Smith");
+
+        when(userAccountService.updateUserAccount("validuser", request)).thenReturn(response);
+
+        mockMvc.perform(put("/api/users/validuser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("validuser"))
+                .andExpect(jsonPath("$.firstname").value("John"))
+                .andExpect(jsonPath("$.lastname").value("Smith"));
+    }
+
+    /**
+     * Integration test for updating a user account that does not exist.
+     * <p>
+     * Expects the controller to return a 400 Bad Request when the service
+     * throws a {@link fh.bswe.bookmanager.exception.UserNotFoundException}.
+     * </p>
+     *
+     * @throws Exception if the request processing fails
+     */
+    @Test
+    void testUpdateUserAccountNotFound() throws Exception {
+        UserAccountUpdateDto request = new UserAccountUpdateDto();
+        request.setFirstname("John");
+        request.setLastname("Smith");
+
+        when(userAccountService.updateUserAccount("validuser", request))
+                .thenThrow(new UserNotFoundException());
+
+        mockMvc.perform(put("/api/users/validuser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Integration test for validation failure on firstname during user update.
+     * <p>
+     * Verifies that the controller returns a 422 Unprocessable Entity
+     * when the firstname does not match the pattern constraint.
+     * </p>
+     *
+     * @throws Exception if the request processing fails
+     */
+    @Test
+    void testUpdateUserAccountValidationFirstname() throws Exception {
+        UserAccountUpdateDto request = new UserAccountUpdateDto();
+        request.setFirstname("John-");
+        request.setLastname("Smith");
+
+        mockMvc.perform(put("/api/users/validuser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.firstname")
+                        .value("Firstname must be 3-20 letters only"));
     }
 }

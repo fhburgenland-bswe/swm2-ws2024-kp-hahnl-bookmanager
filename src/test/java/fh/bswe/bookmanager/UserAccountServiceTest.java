@@ -1,6 +1,7 @@
 package fh.bswe.bookmanager;
 
 import fh.bswe.bookmanager.dto.UserAccountDto;
+import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
 import fh.bswe.bookmanager.entity.UserAccount;
 import fh.bswe.bookmanager.exception.UserExistsException;
 import fh.bswe.bookmanager.exception.UserNotFoundException;
@@ -162,5 +163,66 @@ public class UserAccountServiceTest {
 
         assertThrows(UserNotFoundException.class, () -> userAccountService.findUserAccountByUsername("newuser"));
         verify(userAccountRepository, times(1)).findByUsername("newuser");
+    }
+
+    /**
+     * Tests updating an existing user account in the service layer.
+     * <p>
+     * Ensures that when a user with the given username exists, the
+     * firstname and lastname are updated and persisted correctly.
+     * </p>
+     *
+     * @throws UserNotFoundException if the user is not found (not expected here)
+     */
+    @Test
+    void testUpdateUserAccount() throws UserNotFoundException {
+        UserAccount storedUserAccount = new UserAccount();
+        storedUserAccount.setId(1);
+        storedUserAccount.setUsername("olduser");
+        storedUserAccount.setFirstname("John");
+        storedUserAccount.setLastname("Doe");
+
+        when(userAccountRepository.findByUsername("olduser")).thenReturn(Optional.of(storedUserAccount));
+
+        UserAccount savedUserAccount = new UserAccount();
+        savedUserAccount.setId(1);
+        savedUserAccount.setUsername("olduser");
+        savedUserAccount.setFirstname("John");
+        savedUserAccount.setLastname("Smith");
+
+        UserAccountUpdateDto userAccountUpdateDto = new UserAccountUpdateDto();
+        userAccountUpdateDto.setFirstname("John");
+        userAccountUpdateDto.setLastname("Smith");
+
+        when(userAccountRepository.save(any(UserAccount.class))).thenReturn(savedUserAccount);
+
+        UserAccountDto result = userAccountService.updateUserAccount("olduser", userAccountUpdateDto);
+
+        assertEquals("olduser", result.getUsername());
+        assertEquals("John", result.getFirstname());
+        assertEquals("Smith", result.getLastname());
+        assertEquals(1, result.getId());
+        verify(userAccountRepository, times(1)).save(any(UserAccount.class));
+    }
+
+    /**
+     * Tests the service behavior when trying to update a non-existent user account.
+     * <p>
+     * Expects that a {@link fh.bswe.bookmanager.exception.UserNotFoundException} is thrown
+     * when the user is not found in the repository.
+     * </p>
+     *
+     * @throws UserNotFoundException expected exception
+     */
+    @Test
+    void testUpdateUserAccountNotFound() throws UserNotFoundException {
+        when(userAccountRepository.findByUsername("olduser")).thenReturn(Optional.empty());
+
+        UserAccountUpdateDto userAccountUpdateDto = new UserAccountUpdateDto();
+        userAccountUpdateDto.setFirstname("John");
+        userAccountUpdateDto.setLastname("Smith");
+
+        assertThrows(UserNotFoundException.class, () -> userAccountService.updateUserAccount("olduser", userAccountUpdateDto));
+        verify(userAccountRepository, times(1)).findByUsername("olduser");
     }
 }

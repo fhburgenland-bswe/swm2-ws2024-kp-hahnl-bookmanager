@@ -1,6 +1,7 @@
 package fh.bswe.bookmanager.service;
 
 import fh.bswe.bookmanager.dto.UserAccountDto;
+import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
 import fh.bswe.bookmanager.entity.UserAccount;
 import fh.bswe.bookmanager.exception.UserExistsException;
 import fh.bswe.bookmanager.exception.UserNotFoundException;
@@ -62,6 +63,35 @@ public class UserAccountService {
         }
 
         return mapToDto(userAccountRepository.save(mapToEntity(userAccountDto)));
+    }
+
+    /**
+     * Updates the firstname and lastname of an existing user account.
+     * <p>
+     * Looks up the user by username. If found, the firstname and lastname
+     * are updated using the values from the given {@link UserAccountUpdateDto}.
+     * </p>
+     * <p>
+     * Returns the updated user data as a {@link UserAccountDto}.
+     * If the user does not exist, a {@link UserNotFoundException} is thrown.
+     * </p>
+     *
+     * @param username the username of the user to update
+     * @param userAccountUpdateDto the new values for firstname and lastname
+     * @return the updated {@link UserAccountDto}
+     * @throws UserNotFoundException if no user with the given username exists
+     */
+    public UserAccountDto updateUserAccount(final String username, final UserAccountUpdateDto userAccountUpdateDto) throws UserNotFoundException {
+        final Optional<UserAccount> userAccount = userAccountRepository.findByUsername(username);
+
+        if (userAccount.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+
+        userAccount.get().setFirstname(userAccountUpdateDto.getFirstname());
+        userAccount.get().setLastname(userAccountUpdateDto.getLastname());
+
+        return mapToDto(userAccountRepository.save(userAccount.get()));
     }
 
     private Optional<UserAccount> findUserByUsername(final String username) {
