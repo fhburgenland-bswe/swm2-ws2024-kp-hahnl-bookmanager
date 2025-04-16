@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class BookTest {
     /**
@@ -66,7 +67,7 @@ public class BookTest {
     void testNullCoverImage() {
         Book book = new Book();
         book.setCoverImage(null);
-        assertNull(book.getCoverImage());
+        assertArrayEquals(book.getCoverImage(), new byte[0]);
     }
 
     /**
