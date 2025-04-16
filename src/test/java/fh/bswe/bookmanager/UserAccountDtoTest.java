@@ -5,7 +5,7 @@ import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestUserAccountDto {
+public class UserAccountDtoTest {
 
     /**
      * Tests that two equal {@link UserAccountDto} instances produce the same hash code.
