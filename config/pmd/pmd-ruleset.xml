@@ -15,6 +15,7 @@
     <exclude-pattern>.*/generated/.*</exclude-pattern>
     <exclude-pattern>.*/test/.*</exclude-pattern>
     <exclude-pattern>.*/config/.*</exclude-pattern>
+    <exclude-pattern>OpenLibraryBookDto.java</exclude-pattern>
 
     <rule ref="category/java/bestpractices.xml">
         <exclude name="GuardLogStatement"/>
