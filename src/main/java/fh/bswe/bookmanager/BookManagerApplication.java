@@ -2,11 +2,13 @@ package fh.bswe.bookmanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 /**
  * The main entry point for the Book Manager application.
  */
 @SpringBootApplication
+@ConfigurationPropertiesScan("fh.bswe.bookmanager.config")
 public class BookManagerApplication {
 
     /**

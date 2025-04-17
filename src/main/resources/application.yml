@@ -23,6 +23,10 @@ spring:
     serialization:
       indent-output: true
 
+openlibrary:
+  bookUrl: "https://openlibrary.org/isbn/"
+  coverUrl: "https://covers.openlibrary.org/b/isbn/"
+
 logging:
   level:
     bswe.swm2: DEBUG

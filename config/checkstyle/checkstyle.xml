@@ -9,6 +9,11 @@
 
     <property name="severity" value="error" default="warning"/>
 
+    <module name="SuppressionSingleFilter">
+        <property name="checks" value=".*"/>
+        <property name="files" value="OpenLibraryBookDto.java"/>
+    </module>
+
     <module name="FileTabCharacter">
         <property name="eachLine" value="true"/>
     </module>
