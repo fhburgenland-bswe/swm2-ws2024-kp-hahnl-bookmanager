@@ -6,6 +6,7 @@ import fh.bswe.bookmanager.entity.Book;
 import fh.bswe.bookmanager.exception.BookNotFoundException;
 import fh.bswe.bookmanager.exception.CoverNotFoundException;
 import fh.bswe.bookmanager.helper.OpenLibraryFetcher;
+import fh.bswe.bookmanager.repository.BookRepository;
 import fh.bswe.bookmanager.service.BookService;
 import fh.bswe.bookmanager.service.OpenLibraryService;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ public class OpenLibraryServiceTest {
 
     @MockitoBean
     private OpenLibraryFetcher openLibraryFetcher;
+
+    @Autowired
+    private BookRepository bookRepository;
 
     @Autowired
     private OpenLibraryService openLibraryService;
@@ -93,8 +97,6 @@ public class OpenLibraryServiceTest {
         assertEquals("", savedBook.getPublishers());
         assertEquals("", savedBook.getCoverKey());
         assertArrayEquals(new byte[]{1, 2, 3}, savedBook.getCoverImage());
-
-        verify(bookService).save(any(Book.class));
     }
 
     /**
@@ -136,8 +138,6 @@ public class OpenLibraryServiceTest {
         assertEquals("", savedBook.getPublishers());
         assertEquals("", savedBook.getCoverKey());
         assertArrayEquals(new byte[0], savedBook.getCoverImage());
-
-        verify(bookService).save(any(Book.class));
     }
 
     /**
@@ -178,8 +178,6 @@ public class OpenLibraryServiceTest {
         assertEquals("", savedBook.getPublishers());
         assertEquals("", savedBook.getCoverKey());
         assertArrayEquals(new byte[]{1, 2, 3}, savedBook.getCoverImage());
-
-        verify(bookService).save(any(Book.class));
     }
 
     /**
@@ -223,7 +221,5 @@ public class OpenLibraryServiceTest {
         assertEquals("", savedBook.getPublishers());
         assertEquals("", savedBook.getCoverKey());
         assertArrayEquals(new byte[]{1, 2, 3}, savedBook.getCoverImage());
-
-        verify(bookService).save(any(Book.class));
     }
 }

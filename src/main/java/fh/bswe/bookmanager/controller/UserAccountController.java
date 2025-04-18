@@ -1,10 +1,14 @@
 package fh.bswe.bookmanager.controller;
 
+import fh.bswe.bookmanager.dto.BookDto;
 import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
+import fh.bswe.bookmanager.exception.BookNotFoundException;
+import fh.bswe.bookmanager.exception.UserBookExistsException;
 import fh.bswe.bookmanager.exception.UserExistsException;
 import fh.bswe.bookmanager.exception.UserNotFoundException;
 import fh.bswe.bookmanager.service.UserAccountService;
+import fh.bswe.bookmanager.service.UserBookService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -29,20 +33,26 @@ import org.springframework.web.bind.annotation.RestController;
  * HTTP responses depending on the outcome.
  * </p>
  */
+@SuppressWarnings({
+        "PMD.AvoidDuplicateLiterals"
+})
 @Validated
 @RestController
 @RequestMapping("/api/users")
 public class UserAccountController {
 
     private final UserAccountService userAccountService;
+    private final UserBookService userBookService;
 
     /**
      * Constructs a new {@code UserAccountController} with the given service.
      *
      * @param userAccountService the service used for user account operations
      */
-    public UserAccountController(final UserAccountService userAccountService) {
+    public UserAccountController(final UserAccountService userAccountService,
+                                 final UserBookService userBookService) {
         this.userAccountService = userAccountService;
+        this.userBookService = userBookService;
     }
 
     /**
@@ -83,7 +93,7 @@ public class UserAccountController {
      * @param username the username to look up
      * @return {@link ResponseEntity} containing the user data or an error message
      */
-    @GetMapping("{username}")
+    @GetMapping("/{username}")
     public ResponseEntity<?> readUserAccount(
             @NotBlank
             @PathVariable("username")
@@ -118,7 +128,7 @@ public class UserAccountController {
      * @param userAccountUpdateDto the new firstname and lastname values (request body)
      * @return the updated user information or an error response
      */
-    @PutMapping("{username}")
+    @PutMapping("/{username}")
     public ResponseEntity<?> updateUserAccount(
             @NotBlank
             @PathVariable("username")
@@ -148,7 +158,7 @@ public class UserAccountController {
      * @param username the username of the user account to delete (path variable)
      * @return a {@link ResponseEntity} with appropriate HTTP status code
      */
-    @DeleteMapping("{username}")
+    @DeleteMapping("/{username}")
     public ResponseEntity<?> deleteUserAccount(
             @NotBlank
             @PathVariable("username")
@@ -160,6 +170,49 @@ public class UserAccountController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Adds a book to the library of a specific user.
+     * <p>
+     * This endpoint attempts to associate a book, identified by its ISBN, with the given user.
+     * If the user or book does not exist, or if the book is already assigned to the user, an appropriate
+     * error response is returned.
+     * </p>
+     * <ul>
+     *     <li>{@code 201 CREATED} with the {@link BookDto} if the book is successfully added</li>
+     *     <li>{@code 400 BAD REQUEST} if the user or book was not found</li>
+     *     <li>{@code 409 CONFLICT} if the book already exists in the user's library</li>
+     *     <li>{@code 500 INTERNAL SERVER ERROR} for any unexpected errors</li>
+     * </ul>
+     * @param username the username of the user whose library the book will be added to.
+     *                 Must be 5–20 characters long and contain only letters, numbers, and underscores.
+     * @param isbn     the ISBN number of the book to add.
+     *                 Must be 10 or 13 digits long and consist only of digits.
+     * @return a {@link ResponseEntity} and the added book data
+     */
+    @PostMapping("/{username}/books/{isbn}")
+    public ResponseEntity<?> addBookToUserLibrary(
+            @NotBlank
+            @PathVariable("username")
+            @Size(min = 5, max = 20, message = "The length must be between 5 and 20 characters")
+            @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username must be 5-20 characters and contain only letters, numbers, and underscores")
+            final String username,
+            @NotBlank
+            @PathVariable("isbn")
+            @Size(min = 10, max = 13, message = "The length must be between 10 and 13 digits")
+            @Pattern(regexp = "^[0-9]{10,13}$", message = "ISBN must be 10 or 13 digits and contain only digits")
+            final String isbn) {
+        try {
+            final BookDto bookDto = userBookService.storeBookToUserLibrary(username, isbn);
+            return new ResponseEntity<>(bookDto, HttpStatus.CREATED);
+        } catch (UserNotFoundException | BookNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (UserBookExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }
