@@ -2,10 +2,72 @@ package fh.bswe.bookmanager;
 
 import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.entity.UserAccount;
+import fh.bswe.bookmanager.entity.UserBook;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+/**
+ * Unit tests for the {@link UserAccount} entity.
+ * These tests verify the correctness of getters, setters, and equality logic.
+ */
 public class UserAccountTest {
+
+    /**
+     * Verifies that the ID getter and setter work as expected.
+     */
+    @Test
+    void testSetAndGetId() {
+        UserAccount user = new UserAccount();
+        user.setId(42);
+        assertEquals(42, user.getId());
+    }
+
+    /**
+     * Verifies that the username getter and setter work as expected.
+     */
+    @Test
+    void testSetAndGetUsername() {
+        UserAccount user = new UserAccount();
+        user.setUsername("johndoe");
+        assertEquals("johndoe", user.getUsername());
+    }
+
+    /**
+     * Verifies that the firstname getter and setter work as expected.
+     */
+    @Test
+    void testSetAndGetFirstname() {
+        UserAccount user = new UserAccount();
+        user.setFirstname("John");
+        assertEquals("John", user.getFirstname());
+    }
+
+    /**
+     * Verifies that the lastname getter and setter work as expected.
+     */
+    @Test
+    void testSetAndGetLastname() {
+        UserAccount user = new UserAccount();
+        user.setLastname("Doe");
+        assertEquals("Doe", user.getLastname());
+    }
+
+    /**
+     * Verifies that the list of userBooks can be set and retrieved properly.
+     */
+    @Test
+    void testSetAndGetUserBooks() {
+        UserAccount user = new UserAccount();
+        UserBook userBook = new UserBook();
+        user.setUserBooks(List.of(userBook));
+        assertEquals(1, user.getUserBooks().size());
+        assertSame(userBook, user.getUserBooks().get(0));
+    }
 
     /**
      * Tests that two equal {@link UserAccount} instances produce the same hash code.
@@ -22,7 +84,7 @@ public class UserAccountTest {
         userAccount2.setFirstname("John");
         userAccount2.setLastname("Smith");
 
-        Assertions.assertEquals(userAccount.hashCode(), userAccount2.hashCode());
+        assertEquals(userAccount.hashCode(), userAccount2.hashCode());
     }
 
     /**

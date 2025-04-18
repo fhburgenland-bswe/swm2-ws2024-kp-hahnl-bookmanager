@@ -8,6 +8,7 @@ import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
 import fh.bswe.bookmanager.exception.BookNotFoundException;
 import fh.bswe.bookmanager.exception.ConnectionErrorException;
 import fh.bswe.bookmanager.exception.UserBookExistsException;
+import fh.bswe.bookmanager.exception.UserBookNotFoundException;
 import fh.bswe.bookmanager.exception.UserExistsException;
 import fh.bswe.bookmanager.exception.UserNotFoundException;
 import fh.bswe.bookmanager.service.UserAccountService;
@@ -22,6 +23,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -466,5 +469,79 @@ public class UserAccountControllerTest {
 
         mockMvc.perform(post("/api/users/validuser/books/0123456789"))
                 .andExpect(status().isInternalServerError());
+    }
+
+    /**
+     * Tests successful remove of a book from a user's library.
+     * <p>
+     * Simulates a valid DELETE request to remove a book by ISBN from the given username.
+     * Verifies that the controller responds with HTTP 200 (OK).
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testRemoveBookFromUserLibrary() throws Exception {
+        doNothing().when(userBookService).removeBookFromUserLibrary("validuser", "0123456789");
+
+        mockMvc.perform(delete("/api/users/validuser/books/0123456789"))
+                .andExpect(status().isOk());
+
+        verify(userBookService, times(1)).removeBookFromUserLibrary("validuser", "0123456789");
+    }
+
+    /**
+     * Tests behavior when the specified user does not exist.
+     * <p>
+     * Expects the service to throw {@link UserNotFoundException}, and the controller
+     * to respond with HTTP 400 (Bad Request).
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testRemoveBookFromUserLibraryUserNotFound() throws Exception {
+        doThrow(new UserNotFoundException())
+                .when(userBookService).removeBookFromUserLibrary("validuser", "0123456789");
+
+        mockMvc.perform(delete("/api/users/validuser/books/0123456789"))
+                .andExpect(status().isBadRequest());
+
+        verify(userBookService, times(1)).removeBookFromUserLibrary("validuser", "0123456789");
+    }
+
+    /**
+     * Tests behavior when the specified book is not found.
+     * <p>
+     * Expects the service to throw {@link BookNotFoundException}, and the controller
+     * to respond with HTTP 400 (Bad Request).
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testRemoveBookFromUserLibraryBookNotFound() throws Exception {
+        doThrow(new BookNotFoundException("not found"))
+                .when(userBookService).removeBookFromUserLibrary("validuser", "0123456789");
+        mockMvc.perform(delete("/api/users/validuser/books/0123456789"))
+                .andExpect(status().isBadRequest());
+
+        verify(userBookService, times(1)).removeBookFromUserLibrary("validuser", "0123456789");
+    }
+
+    /**
+     * Tests behavior when a user tries to remove a book that doesn't exist in their library.
+     * <p>
+     * Expects the service to throw {@link UserBookNotFoundException}, and the controller
+     * to respond with HTTP 400 (Bad Request).
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testRemoveBookFromUserLibraryUserBookNotFound() throws Exception {
+        doThrow(new UserBookNotFoundException("not found"))
+                .when(userBookService).removeBookFromUserLibrary("validuser", "0123456789");
+
+        mockMvc.perform(delete("/api/users/validuser/books/0123456789"))
+                .andExpect(status().isBadRequest());
+
+        verify(userBookService, times(1)).removeBookFromUserLibrary("validuser", "0123456789");
     }
 }

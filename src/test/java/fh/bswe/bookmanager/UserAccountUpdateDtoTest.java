@@ -55,7 +55,7 @@ public class UserAccountUpdateDtoTest {
      * Tests that two {@link UserAccountUpdateDto} instances with different lastname values are not equal.
      */
     @Test
-    public void testUserAccountUpdateDtoEqualsFalse() {
+    public void testUserAccountUpdateDtoEqualsFalseLastname() {
         UserAccountUpdateDto userAccountUpdateDto = new UserAccountUpdateDto();
         userAccountUpdateDto.setFirstname("John");
         userAccountUpdateDto.setLastname("Smith");
@@ -63,6 +63,22 @@ public class UserAccountUpdateDtoTest {
         UserAccountUpdateDto userAccountUpdateDto2 = new UserAccountUpdateDto();
         userAccountUpdateDto2.setFirstname("John");
         userAccountUpdateDto2.setLastname("Huber");
+
+        Assertions.assertFalse(userAccountUpdateDto.equals(userAccountUpdateDto2));
+    }
+
+    /**
+     * Tests that two {@link UserAccountUpdateDto} instances with different firstname values are not equal.
+     */
+    @Test
+    public void testUserAccountUpdateDtoEqualsFalseFirstname() {
+        UserAccountUpdateDto userAccountUpdateDto = new UserAccountUpdateDto();
+        userAccountUpdateDto.setFirstname("Sepp");
+        userAccountUpdateDto.setLastname("Smith");
+
+        UserAccountUpdateDto userAccountUpdateDto2 = new UserAccountUpdateDto();
+        userAccountUpdateDto2.setFirstname("John");
+        userAccountUpdateDto2.setLastname("Smith");
 
         Assertions.assertFalse(userAccountUpdateDto.equals(userAccountUpdateDto2));
     }

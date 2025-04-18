@@ -24,4 +24,12 @@ public interface UserBookRepository extends CrudRepository<UserBook, Long> {
      * @return {@code true} if a mapping exists, otherwise {@code false}
      */
     boolean existsByUserAccountAndBook(UserAccount userAccount, Book book);
+
+    /**
+     * Deletes the {@link UserBook} entry that associates the given user account with the given book.
+     *
+     * @param userAccount the user account whose association should be removed
+     * @param book        the book to disassociate from the user
+     */
+    void deleteByUserAccountAndBook(UserAccount userAccount, Book book);
 }

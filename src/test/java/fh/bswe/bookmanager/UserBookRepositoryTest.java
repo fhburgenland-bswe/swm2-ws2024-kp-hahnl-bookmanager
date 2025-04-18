@@ -6,6 +6,7 @@ import fh.bswe.bookmanager.entity.UserBook;
 import fh.bswe.bookmanager.repository.BookRepository;
 import fh.bswe.bookmanager.repository.UserAccountRepository;
 import fh.bswe.bookmanager.repository.UserBookRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -70,5 +71,34 @@ public class UserBookRepositoryTest {
 
         boolean exists = userBookRepository.existsByUserAccountAndBook(user, book);
         assertFalse(exists);
+    }
+
+    /**
+     * Tests that {@link UserBookRepository#deleteByUserAccountAndBook(UserAccount, Book)}
+     * successfully deletes the mapping between user and book.
+     */
+    @Transactional
+    @Test
+    void testDeleteByUserAccountAndBook() {
+        UserAccount user = new UserAccount();
+        user.setUsername("deletetest");
+        user.setFirstname("firstname");
+        user.setLastname("lastname");
+        userAccountRepository.save(user);
+
+        Book book = new Book();
+        book.setIsbn("1112223334");
+        bookRepository.save(book);
+
+        UserBook userBook = new UserBook();
+        userBook.setUser(user);
+        userBook.setBook(book);
+        userBookRepository.save(userBook);
+
+        assertTrue(userBookRepository.existsByUserAccountAndBook(user, book));
+
+        userBookRepository.deleteByUserAccountAndBook(user, book);
+
+        assertFalse(userBookRepository.existsByUserAccountAndBook(user, book));
     }
 }

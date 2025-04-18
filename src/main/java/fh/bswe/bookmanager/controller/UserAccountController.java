@@ -5,6 +5,7 @@ import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
 import fh.bswe.bookmanager.exception.BookNotFoundException;
 import fh.bswe.bookmanager.exception.UserBookExistsException;
+import fh.bswe.bookmanager.exception.UserBookNotFoundException;
 import fh.bswe.bookmanager.exception.UserExistsException;
 import fh.bswe.bookmanager.exception.UserNotFoundException;
 import fh.bswe.bookmanager.service.UserAccountService;
@@ -213,6 +214,48 @@ public class UserAccountController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Removes a specific book from a user's personal library.
+     * <p>
+     * This endpoint is accessed via HTTP DELETE at {@code /{username}/books/{isbn}} and deletes
+     * the association between the given user and the specified book (by ISBN). If the user or book
+     * does not exist, or the book is not associated with the user, an appropriate error message
+     * is returned.
+     * </p>
+     *
+     * @param username the username of the user whose library the book should be removed from;
+     *                 must be 5–20 alphanumeric characters or underscores
+     * @param isbn     the ISBN of the book to remove; must be a 10- or 13-digit number
+     * @return {@link ResponseEntity} with:
+     *         <ul>
+     *             <li>{@code 200 OK} if the removal was successful</li>
+     *             <li>{@code 400 Bad Request} with an error message if the user, book,
+     *             or association was not found</li>
+     *         </ul>
+     * @throws UserNotFoundException       if the user does not exist in the database
+     * @throws BookNotFoundException       if the book does not exist in the database
+     * @throws UserBookNotFoundException   if the book is not associated with the user
+     */
+    @DeleteMapping("/{username}/books/{isbn}")
+    public ResponseEntity<?> removeBookToUserLibrary(
+            @NotBlank
+            @PathVariable("username")
+            @Size(min = 5, max = 20, message = "The length must be between 5 and 20 characters")
+            @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username must be 5-20 characters and contain only letters, numbers, and underscores")
+            final String username,
+            @NotBlank
+            @PathVariable("isbn")
+            @Size(min = 10, max = 13, message = "The length must be between 10 and 13 digits")
+            @Pattern(regexp = "^[0-9]{10,13}$", message = "ISBN must be 10 or 13 digits and contain only digits")
+            final String isbn) {
+        try {
+            userBookService.removeBookFromUserLibrary(username, isbn);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (UserNotFoundException | BookNotFoundException | UserBookNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }
