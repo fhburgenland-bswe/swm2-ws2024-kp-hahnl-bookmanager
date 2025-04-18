@@ -26,6 +26,7 @@ spring:
 openlibrary:
   bookUrl: "https://openlibrary.org/isbn/"
   coverUrl: "https://covers.openlibrary.org/b/isbn/"
+  authorUrl: "https://openlibrary.org/authors/"
 
 logging:
   level:

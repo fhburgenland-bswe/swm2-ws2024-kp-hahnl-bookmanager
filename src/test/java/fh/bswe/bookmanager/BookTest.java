@@ -23,7 +23,7 @@ public class BookTest {
         book.setIsbn("1234567890123");
         book.setTitle("Test Title");
         book.setAuthors("Author A, Author B");
-        book.setPublishYear(2020);
+        book.setPublishDate("2020");
         book.setPublishers("Test Publisher");
         book.setCoverKey("cover_key");
         book.setCoverLink("http://cover.link");
@@ -35,7 +35,7 @@ public class BookTest {
         assertEquals("1234567890123", book.getIsbn());
         assertEquals("Test Title", book.getTitle());
         assertEquals("Author A, Author B", book.getAuthors());
-        assertEquals(2020, book.getPublishYear());
+        assertEquals("2020", book.getPublishDate());
         assertEquals("Test Publisher", book.getPublishers());
         assertEquals("cover_key", book.getCoverKey());
         assertEquals("http://cover.link", book.getCoverLink());

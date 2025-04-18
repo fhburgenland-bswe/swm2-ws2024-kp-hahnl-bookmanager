@@ -18,10 +18,16 @@ authentication support and high scalability in mind.
 > the "Minimum Lovable Product".
 
 ### Key Features:
-- Add a book by entering an ISBN (10 or 13 digits)
+- Create a user with personal information
+- Update user's personal information
+- Read user's personal information
+- Remove user and his personal library
+- Add a book to user's personal library by entering an ISBN (10 or 13 digits)
+- Remove a book from user's personal library
+- Show all books of a user's personal library
+- Show a book and it's information
 - Auto-fetch book data from OpenLibrary
 - Assign a personal rating (1–5)
-- Filter by rating
 - Prevent duplicates
 
 ---
