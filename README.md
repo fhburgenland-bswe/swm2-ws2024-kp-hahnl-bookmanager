@@ -62,6 +62,7 @@ authentication support and high scalability in mind.
 | DELETE | /api/users/{username}              | Delete users and associations              |
 | POST   | /api/users/{username}/books/{ISBN} | Add a book to a specific user by ISBN      |
 | DELETE | /api/users/{username}/books/{ISBN} | Remove a book from a specific user by ISBN |
+| GET    | /api/users/{username}/books        | List all books assigned to a user          |
 
 ---
 

@@ -5,6 +5,7 @@ import fh.bswe.bookmanager.controller.UserAccountController;
 import fh.bswe.bookmanager.dto.BookDto;
 import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
+import fh.bswe.bookmanager.dto.UserBookDto;
 import fh.bswe.bookmanager.exception.BookNotFoundException;
 import fh.bswe.bookmanager.exception.ConnectionErrorException;
 import fh.bswe.bookmanager.exception.UserBookExistsException;
@@ -19,6 +20,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -543,5 +546,67 @@ public class UserAccountControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(userBookService, times(1)).removeBookFromUserLibrary("validuser", "0123456789");
+    }
+
+    /**
+     * Tests successful retrieval of a user's book library.
+     * <p>
+     * Expects HTTP 200 OK and a list of {@link UserBookDto} in JSON format.
+     * </p>
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testReadUserBooksLibrarySuccess() throws Exception {
+        UserBookDto book1 = new UserBookDto();
+        book1.setIsbn("0123456789");
+        book1.setTitle("Test Book");
+        book1.setAuthor("Test Author");
+        book1.setRating(5);
+        book1.setComment("Excellent!");
+
+        when(userBookService.readUserBooks("validuser")).thenReturn(List.of(book1));
+
+        mockMvc.perform(get("/api/users/validuser/books"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].isbn").value("0123456789"))
+                .andExpect(jsonPath("$[0].title").value("Test Book"))
+                .andExpect(jsonPath("$[0].author").value("Test Author"))
+                .andExpect(jsonPath("$[0].rating").value(5))
+                .andExpect(jsonPath("$[0].comment").value("Excellent!"));
+    }
+
+    /**
+     * Tests behavior when the specified user is not found.
+     * <p>
+     * Expects HTTP 400 Bad Request with an appropriate error message.
+     * </p>
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testReadUserBooksLibraryUserNotFound() throws Exception {
+        when(userBookService.readUserBooks("unknownuser")).thenThrow(new UserNotFoundException());
+
+        mockMvc.perform(get("/api/users/unknownuser/books"))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests validation failure due to invalid username format.
+     * <p>
+     * Expects HTTP 422 Unprocessable Entity with a validation error message.
+     * </p>
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testReadUserBooksLibraryInvalidUsername() throws Exception {
+        mockMvc.perform(get("/api/users/ab/books"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.['readUserBooksLibrary.username']")
+                        .value("The length must be between 5 and 20 characters"));
     }
 }
