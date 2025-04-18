@@ -204,4 +204,103 @@ public class OpenLibraryBookDtoTest {
         assertEquals("datetime", dto.getLast_modified().getType());
         assertEquals("2024-01-01T12:00:00Z", dto.getLast_modified().getValue());
     }
+
+    /**
+     * Tests setting and retrieving the list of authors.
+     */
+    @Test
+    void testSetAndGetAuthors() {
+        OpenLibraryBookDto.Author author = new OpenLibraryBookDto.Author();
+        author.setKey("/authors/OL456");
+        OpenLibraryBookDto dto = new OpenLibraryBookDto();
+        dto.setAuthors(List.of(author));
+        assertEquals("/authors/OL456", dto.getAuthors().getFirst().getKey());
+    }
+
+    /**
+     * Tests setting and retrieving the physical format.
+     */
+    @Test
+    void testSetAndGetPhysicalFormat() {
+        OpenLibraryBookDto dto = new OpenLibraryBookDto();
+        dto.setPhysical_format("Paperback");
+        assertEquals("Paperback", dto.getPhysical_format());
+    }
+
+    /**
+     * Tests setting and retrieving the full title.
+     */
+    @Test
+    void testSetAndGetFullTitle() {
+        OpenLibraryBookDto dto = new OpenLibraryBookDto();
+        dto.setFull_title("Inferno: A Novel");
+        assertEquals("Inferno: A Novel", dto.getFull_title());
+    }
+
+    /**
+     * Tests setting and retrieving the number of pages.
+     */
+    @Test
+    void testSetAndGetNumberOfPages() {
+        OpenLibraryBookDto dto = new OpenLibraryBookDto();
+        dto.setNumber_of_pages(480);
+        assertEquals(480, dto.getNumber_of_pages());
+    }
+
+    /**
+     * Tests setting and retrieving the edition name.
+     */
+    @Test
+    void testSetAndGetEditionName() {
+        OpenLibraryBookDto dto = new OpenLibraryBookDto();
+        dto.setEdition_name("First Edition");
+        assertEquals("First Edition", dto.getEdition_name());
+    }
+
+    /**
+     * Tests setting and retrieving the list of contributors.
+     */
+    @Test
+    void testSetAndGetContributors() {
+        OpenLibraryBookDto.Contributor contributor = new OpenLibraryBookDto.Contributor();
+        contributor.setName("Jane Doe");
+        contributor.setRole("Editor");
+
+        OpenLibraryBookDto dto = new OpenLibraryBookDto();
+        dto.setContributors(List.of(contributor));
+
+        assertEquals("Jane Doe", dto.getContributors().getFirst().getName());
+        assertEquals("Editor", dto.getContributors().getFirst().getRole());
+    }
+
+    /**
+     * Tests setting and retrieving the description.
+     */
+    @Test
+    void testSetAndGetDescription() {
+        OpenLibraryBookDto dto = new OpenLibraryBookDto();
+        dto.setDescription("A thrilling mystery set in Italy.");
+        assertEquals("A thrilling mystery set in Italy.", dto.getDescription());
+    }
+
+    /**
+     * Tests setting and retrieving the subtitle.
+     */
+    @Test
+    void testSetAndGetSubtitle() {
+        OpenLibraryBookDto dto = new OpenLibraryBookDto();
+        dto.setSubtitle("A Novel");
+        assertEquals("A Novel", dto.getSubtitle());
+    }
+
+    /**
+     * Tests setting and retrieving the list of subjects.
+     */
+    @Test
+    void testSetAndGetSubjects() {
+        OpenLibraryBookDto dto = new OpenLibraryBookDto();
+        dto.setSubjects(List.of("Mystery", "Thriller"));
+        assertEquals("Mystery", dto.getSubjects().get(0));
+        assertEquals("Thriller", dto.getSubjects().get(1));
+    }
 }

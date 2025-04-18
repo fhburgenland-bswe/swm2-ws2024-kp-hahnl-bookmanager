@@ -1,7 +1,9 @@
 package fh.bswe.bookmanager;
 
 import fh.bswe.bookmanager.config.OpenLibraryConfig;
+import fh.bswe.bookmanager.dto.OpenLibraryAuthorDto;
 import fh.bswe.bookmanager.dto.OpenLibraryBookDto;
+import fh.bswe.bookmanager.exception.AuthorNotFoundException;
 import fh.bswe.bookmanager.exception.BookNotFoundException;
 import fh.bswe.bookmanager.exception.ConnectionErrorException;
 import fh.bswe.bookmanager.exception.CoverNotFoundException;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
+
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,7 +52,7 @@ public class OpenLibraryFetcherTest {
         OpenLibraryConfig mockConfig = new OpenLibraryConfig();
         mockConfig.setBookUrl(mockWebServer.url("/book/").toString());
         mockConfig.setCoverUrl(mockWebServer.url("/cover/").toString());
-
+        mockConfig.setAuthorUrl(mockWebServer.url("/author/").toString());
         fetcher = new OpenLibraryFetcher(mockConfig);
     }
 
@@ -111,6 +114,17 @@ public class OpenLibraryFetcherTest {
     }
 
     /**
+     * Tests that a 500 response results in a {@link WebRequestErrorException}.
+     */
+    @Test
+    void testFetchBookInternalServerError() throws Exception {
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(500));
+
+        assertThrows(WebRequestErrorException.class, () -> fetcher.fetchBook("9781101974117"));
+    }
+
+    /**
      * Tests that a dropped connection results in a {@link ConnectionErrorException}.
      */
     @Test
@@ -146,7 +160,7 @@ public class OpenLibraryFetcherTest {
     }
 
     /**
-     * Tests successful fetching of a book cover image.
+     * Tests successful fetching of a cover image.
      */
     @Test
     void testFetchCoverSuccess() throws Exception {
@@ -183,6 +197,17 @@ public class OpenLibraryFetcherTest {
     }
 
     /**
+     * Tests that a 500 response results in a {@link WebRequestErrorException}.
+     */
+    @Test
+    void testFetchCoverInternalServerError() throws Exception {
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(500));
+
+        assertThrows(WebRequestErrorException.class, () -> fetcher.fetchCover("9781101974117"));
+    }
+
+    /**
      * Tests that a connection timeout or error when fetching a cover
      * results in a {@link ConnectionErrorException}.
      */
@@ -192,6 +217,109 @@ public class OpenLibraryFetcherTest {
                 .setSocketPolicy(SocketPolicy.NO_RESPONSE));
 
         assertThrows(ConnectionErrorException.class, () -> fetcher.fetchCover("9781101974117"));
+
+    }
+
+    /**
+     * Tests successful fetching of an author with a valid JSON response.
+     */
+    @Test
+    void testFetchAuthorSuccess() throws Exception {
+        String validReponse = "{\"type\": {\"key\": \"/type/author\"" +
+                "},\"name\": \"Jack Thorne\",\"key\": \"/authors/OL10259603A\"," +
+                "\"source_records\": [\"bwb:9781780019956\"],\"latest_revision\": 1," +
+                "\"revision\": 1,\"created\": {\"type\": \"/type/datetime\"," +
+                "\"value\": \"2022-02-27T20:39:03.235199\"},\"last_modified\": {\n" +
+                "\"type\": \"/type/datetime\",\"value\": \"2022-02-27T20:39:03.235199\"" +
+                "}}";
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+                .setBody(validReponse));
+
+        OpenLibraryAuthorDto authorDto = fetcher.fetchAuthor("OL10259603A");
+
+        assertEquals("Jack Thorne", authorDto.getName());
+    }
+
+    /**
+     * Tests successful fetching of an author with an invalid JSON response.
+     */
+    @Test
+    void testFetchAuthorInvalidJson() throws Exception {
+        String validReponse = "{ not valid";
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+                .setBody(validReponse));
+
+        assertThrows(WebRequestErrorException.class, () -> fetcher.fetchAuthor("9781101974117"));
+    }
+
+    /**
+     * Tests successful fetching of an author with a valid JSON response.
+     */
+    @Test
+    void testFetchAuthorSuccessMissingAuthor() throws Exception {
+        String validReponse = "{\"type\": {\"key\": \"/type/author\"" +
+                "},\"name\": \"Jack Thorne\",\"key\": \"/authors/OL10259603A\"," +
+                "\"source_records\": [\"bwb:9781780019956\"],\"latest_revision\": 1," +
+                "\"revision\": 1,\"created\": {\"type\": \"/type/datetime\"," +
+                "\"value\": \"2022-02-27T20:39:03.235199\"},\"last_modified\": {\n" +
+                "\"type\": \"/type/datetime\",\"value\": \"2022-02-27T20:39:03.235199\"" +
+                "}}";
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+                .setBody(validReponse));
+
+        OpenLibraryAuthorDto authorDto = fetcher.fetchAuthor("OL10259603A");
+
+        assertEquals("Jack Thorne", authorDto.getName());
+    }
+
+    /**
+     * Tests that a 404 response results in a {@link AuthorNotFoundException}.
+     */
+    @Test
+    void testFetchAuthorNotFound() throws Exception {
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404));
+
+        assertThrows(AuthorNotFoundException.class, () -> fetcher.fetchAuthor("OL10259603A"));
+    }
+
+    /**
+     * Tests that a 403 response results in a {@link WebRequestErrorException}.
+     */
+    @Test
+    void testFetchAuthorForbidden() throws Exception {
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(403));
+
+        assertThrows(WebRequestErrorException.class, () -> fetcher.fetchAuthor("OL10259603A"));
+    }
+
+    /**
+     * Tests that a 500 response results in a {@link WebRequestErrorException}.
+     */
+    @Test
+    void testFetchAuthorInternalServerError() throws Exception {
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(500));
+
+        assertThrows(WebRequestErrorException.class, () -> fetcher.fetchAuthor("9781101974117"));
+    }
+
+    /**
+     * Tests that a dropped connection results in a {@link ConnectionErrorException}.
+     */
+    @Test
+    void testFetchAuthorConnectionError() throws Exception {
+        mockWebServer.enqueue(new MockResponse()
+                .setSocketPolicy(SocketPolicy.NO_RESPONSE));
+
+        assertThrows(ConnectionErrorException.class, () -> fetcher.fetchAuthor("OL10259603A"));
 
     }
 }

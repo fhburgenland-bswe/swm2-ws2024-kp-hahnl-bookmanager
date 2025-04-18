@@ -15,26 +15,270 @@ import java.util.Map;
         "PMD.UnusedPrivateField",
         "PMD.FieldNamingConventions",
         "PMD.MethodNamingConventions",
-        "PMD.FormalParameterNamingConventions"
+        "PMD.FormalParameterNamingConventions",
+        "PMD.ExcessivePublicCount"
 })
 public class OpenLibraryBookDto {
-    private List<Work> works;
     private String title;
-    private List<String> publishers;
+    private List<Author> authors;
     private String publish_date;
-    private String key;
     private Type type;
-    private Map<String, Object> identifiers;
+    private List<Work> works;
+    private List<String> publishers;
+    private String physical_format;
+    private String full_title;
     private List<Integer> covers;
-    private String ocaid;
-    private List<String> isbn_13;
-    private List<String> isbn_10;
-    private Map<String, Object> classifications;
+    private String key;
+    private Integer number_of_pages;
+    private Map<String, Object> identifiers;
+    private String edition_name;
+    private List<Contributor> contributors;
     private List<Language> languages;
+    private String description;
+    private String ocaid;
+    private List<String> isbn_10;
+    private List<String> isbn_13;
+    private Map<String, Object> classifications;
     private int latest_revision;
     private int revision;
     private Created created;
     private LastModified last_modified;
+    private String subtitle;
+    private List<String> subjects;
+
+    /**
+     * Represents an author of the book.
+     * <p>
+     * Contains a reference key to the author entity in the OpenLibrary system.
+     */
+    public static class Author {
+        private String key;
+
+        /**
+         * Returns the OpenLibrary key for the author.
+         *
+         * @return the author key
+         */
+        public String getKey() {
+            return key;
+        }
+
+        /**
+         * Sets the OpenLibrary key for the author.
+         *
+         * @param key the author key to set
+         */
+        public void setKey(final String key) {
+            this.key = key;
+        }
+    }
+
+    /**
+     * Represents a contributor to the book (e.g. editor, illustrator).
+     */
+    public static class Contributor {
+        private String role;
+        private String name;
+
+        /**
+         * Returns the role of the contributor (e.g., "Editor", "Illustrator").
+         *
+         * @return the contributor's role
+         */
+        public String getRole() {
+            return role;
+
+        }
+
+        /**
+         * Sets the role of the contributor.
+         *
+         * @param role the contributor's role to set
+         */
+        public void setRole(final String role) {
+            this.role = role;
+        }
+
+        /**
+         * Returns the name of the contributor.
+         *
+         * @return the contributor's name
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * Sets the name of the contributor.
+         *
+         * @param name the contributor's name to set
+         */
+        public void setName(final String name) {
+            this.name = name;
+        }
+    }
+
+    /**
+     * Returns the list of authors associated with the book.
+     *
+     * @return the list of authors
+     */
+    public List<Author> getAuthors() {
+        return authors;
+    }
+
+    /**
+     * Sets the list of authors associated with the book.
+     *
+     * @param authors the list of authors to set
+     */
+    public void setAuthors(final List<Author> authors) {
+        this.authors = authors;
+    }
+
+    /**
+     * Returns the physical format of the book (e.g., "Paperback", "Hardcover").
+     *
+     * @return the physical format
+     */
+    public String getPhysical_format() {
+        return physical_format;
+    }
+
+    /**
+     * Sets the physical format of the book.
+     *
+     * @param physical_format the format to set
+     */
+    public void setPhysical_format(final String physical_format) {
+        this.physical_format = physical_format;
+    }
+
+    /**
+     * Returns the full title of the book, including any subtitles or extra formatting.
+     *
+     * @return the full title
+     */
+    public String getFull_title() {
+        return full_title;
+    }
+
+    /**
+     * Sets the full title of the book.
+     *
+     * @param full_title the full title to set
+     */
+    public void setFull_title(final String full_title) {
+        this.full_title = full_title;
+    }
+
+    /**
+     * Returns the total number of pages in the book.
+     *
+     * @return the number of pages
+     */
+    public Integer getNumber_of_pages() {
+        return number_of_pages;
+    }
+
+    /**
+     * Sets the total number of pages in the book.
+     *
+     * @param number_of_pages the number of pages to set
+     */
+    public void setNumber_of_pages(final Integer number_of_pages) {
+        this.number_of_pages = number_of_pages;
+    }
+
+    /**
+     * Returns the name of the edition of the book.
+     *
+     * @return the edition name
+     */
+    public String getEdition_name() {
+        return edition_name;
+    }
+
+    /**
+     * Sets the name of the edition of the book.
+     *
+     * @param edition_name the edition name to set
+     */
+    public void setEdition_name(final String edition_name) {
+        this.edition_name = edition_name;
+    }
+
+    /**
+     * Returns the list of contributors to the book.
+     *
+     * @return the list of contributors
+     */
+    public List<Contributor> getContributors() {
+        return contributors;
+    }
+
+    /**
+     * Sets the list of contributors to the book.
+     *
+     * @param contributors the list of contributors to set
+     */
+    public void setContributors(final List<Contributor> contributors) {
+        this.contributors = contributors;
+    }
+
+    /**
+     * Returns the book description or summary.
+     *
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the book description or summary.
+     *
+     * @param description the description to set
+     */
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+
+    /**
+     * Returns the subtitle of the book.
+     *
+     * @return the subtitle
+     */
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    /**
+     * Sets the subtitle of the book.
+     *
+     * @param subtitle the subtitle to set
+     */
+    public void setSubtitle(final String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    /**
+     * Returns the list of subjects or genres associated with the book.
+     *
+     * @return the list of subjects
+     */
+    public List<String> getSubjects() {
+        return subjects;
+    }
+
+    /**
+     * Sets the list of subjects or genres for the book.
+     *
+     * @param subjects the list of subjects to set
+     */
+    public void setSubjects(final List<String> subjects) {
+        this.subjects = subjects;
+    }
 
     /**
      * A reference to related works associated with the book.

@@ -35,11 +35,12 @@ public class Book {
     @Column
     private String title;
 
-    @Column(length = 100)
+    @Lob
+    @Column
     private String authors;
 
-    @Column(name = "publish_year")
-    private Integer publishYear;
+    @Column(name = "publish_date", length = 30)
+    private String publishDate;
 
     @Lob
     @Column
@@ -135,21 +136,21 @@ public class Book {
     }
 
     /**
-     * Gets the year the book was published.
+     * Gets the date the book was published.
      *
-     * @return the publication year
+     * @return the publication date
      */
-    public Integer getPublishYear() {
-        return publishYear;
+    public String getPublishDate() {
+        return publishDate;
     }
 
     /**
-     * Sets the year the book was published.
+     * Sets the date the book was published.
      *
-     * @param publishYear the publication year to set
+     * @param publishDate the publication date to set
      */
-    public void setPublishYear(final Integer publishYear) {
-        this.publishYear = publishYear;
+    public void setPublishDate(final String publishDate) {
+        this.publishDate = publishDate;
     }
 
     /**

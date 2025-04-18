@@ -16,6 +16,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 public class OpenLibraryConfig {
     private String bookUrl;
     private String coverUrl;
+    private String authorUrl;
 
     /**
      * Returns the base URL used to retrieve book metadata from OpenLibrary.
@@ -51,5 +52,23 @@ public class OpenLibraryConfig {
      */
     public void setCoverUrl(final String coverUrl) {
         this.coverUrl = coverUrl;
+    }
+
+    /**
+     * Returns the base URL used to retrieve author data from OpenLibrary.
+     *
+     * @return the author data base URL
+     */
+    public String getAuthorUrl() {
+        return authorUrl;
+    }
+
+    /**
+     * Sets the base URL used to retrieve author data from OpenLibrary.
+     *
+     * @param authorUrl the author data base URL to set
+     */
+    public void setAuthorUrl(String authorUrl) {
+        this.authorUrl = authorUrl;
     }
 }
