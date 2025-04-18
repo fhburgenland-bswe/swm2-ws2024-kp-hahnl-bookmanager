@@ -5,6 +5,8 @@ import fh.bswe.bookmanager.entity.UserAccount;
 import fh.bswe.bookmanager.entity.UserBook;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
+
 /**
  * Repository interface for managing {@link fh.bswe.bookmanager.entity.UserBook} entities.
  * <p>
@@ -32,4 +34,12 @@ public interface UserBookRepository extends CrudRepository<UserBook, Long> {
      * @param book        the book to disassociate from the user
      */
     void deleteByUserAccountAndBook(UserAccount userAccount, Book book);
+
+    /**
+     * Find all {@link UserBook} entries that associates the given user account.
+     *
+     * @param userAccount   the user account whose association should be found
+     * @return              all books associates the given user account
+     */
+    List<UserBook> findByUserAccount(UserAccount userAccount);
 }

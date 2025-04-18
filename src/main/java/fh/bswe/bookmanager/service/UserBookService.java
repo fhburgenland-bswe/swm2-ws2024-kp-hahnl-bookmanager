@@ -1,6 +1,7 @@
 package fh.bswe.bookmanager.service;
 
 import fh.bswe.bookmanager.dto.BookDto;
+import fh.bswe.bookmanager.dto.UserBookDto;
 import fh.bswe.bookmanager.entity.Book;
 import fh.bswe.bookmanager.entity.UserAccount;
 import fh.bswe.bookmanager.entity.UserBook;
@@ -13,7 +14,9 @@ import fh.bswe.bookmanager.repository.UserAccountRepository;
 import fh.bswe.bookmanager.repository.UserBookRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing the association between users and books.
@@ -117,6 +120,30 @@ public class UserBookService {
         userBookRepository.deleteByUserAccountAndBook(userAccount.get(), book.get());
     }
 
+    /**
+     * Retrieves a list of books from the library of a specific user.
+     * <p>
+     * This method looks up the user by their username. If the user exists,
+     * it retrieves all {@link UserBook} associations
+     * and maps them to {@link UserBookDto} representations.
+     * </p>
+     *
+     * @param username the username of the user whose book library is to be retrieved
+     * @return a list of {@link UserBookDto} objects representing the user's books
+     * @throws UserNotFoundException if no {@link UserAccount} with the given username exists
+     */
+    public List<UserBookDto> readUserBooks(final String username) throws UserNotFoundException {
+        final Optional<UserAccount> userAccount = userAccountRepository.findByUsername(username);
+
+        if (userAccount.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+
+        final List<UserBook> userBooks = userBookRepository.findByUserAccount(userAccount.get());
+
+        return userBooks.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
+
     private BookDto mapToDto(final Book book) {
         final BookDto bookDto = new BookDto();
         bookDto.setId(book.getId());
@@ -129,6 +156,16 @@ public class UserBookService {
         bookDto.setCoverImage(book.getCoverImage());
         bookDto.setCoverKey(book.getCoverKey());
         bookDto.setCoverLink(book.getCoverLink());
+        return bookDto;
+    }
+
+    private UserBookDto mapToDto(final UserBook userBook) {
+        final UserBookDto bookDto = new UserBookDto();
+        bookDto.setIsbn(userBook.getBook().getIsbn());
+        bookDto.setTitle(userBook.getBook().getTitle());
+        bookDto.setAuthor(userBook.getBook().getAuthors());
+        bookDto.setRating(userBook.getRating());
+        bookDto.setComment(userBook.getComment());
         return bookDto;
     }
 }

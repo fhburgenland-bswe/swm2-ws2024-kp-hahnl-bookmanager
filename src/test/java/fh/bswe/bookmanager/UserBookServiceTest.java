@@ -1,6 +1,7 @@
 package fh.bswe.bookmanager;
 
 import fh.bswe.bookmanager.dto.BookDto;
+import fh.bswe.bookmanager.dto.UserBookDto;
 import fh.bswe.bookmanager.entity.Book;
 import fh.bswe.bookmanager.entity.UserAccount;
 import fh.bswe.bookmanager.entity.UserBook;
@@ -20,11 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
@@ -175,5 +178,69 @@ public class UserBookServiceTest {
         userBookService.removeBookFromUserLibrary("testuser", "1234567890");
 
         verify(userBookRepository, times(1)).deleteByUserAccountAndBook(user, book);
+    }
+
+    /**
+     * Tests that the method returns a list of {@link UserBookDto} for a valid username.
+     */
+    @Test
+    void testReadUserBooks() throws UserNotFoundException {
+        UserAccount user = new UserAccount();
+        user.setUsername("testuser");
+
+        Book book = new Book();
+        book.setTitle("Test Book");
+        book.setIsbn("1234567890");
+        book.setAuthors("Author Name");
+
+        UserBook userBook = new UserBook();
+        userBook.setUser(user);
+        userBook.setBook(book);
+        userBook.setRating(5);
+        userBook.setComment("Nice read");
+
+        when(userAccountRepository.findByUsername("testuser"))
+                .thenReturn(Optional.of(user));
+        when(userBookRepository.findByUserAccount(user))
+                .thenReturn(List.of(userBook));
+
+        List<UserBookDto> result = userBookService.readUserBooks("testuser");
+
+        assertEquals(1, result.size());
+        assertEquals("Test Book", result.get(0).getTitle());
+        assertEquals("1234567890", result.get(0).getIsbn());
+        assertEquals("Author Name", result.get(0).getAuthor());
+        assertEquals(5, result.get(0).getRating());
+        assertEquals("Nice read", result.get(0).getComment());
+    }
+
+    /**
+     * Tests that a {@link UserNotFoundException} is thrown if the user does not exist.
+     */
+    @Test
+    void testReadUserBooksUserNotFound() {
+        when(userAccountRepository.findByUsername("nonexistent"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userBookService.readUserBooks("nonexistent"));
+    }
+
+    /**
+     * Tests that an empty list is returned if the user exists but has no books.
+     */
+    @Test
+    void testReadUserBooksNoBooks() throws UserNotFoundException {
+        UserAccount user = new UserAccount();
+        user.setUsername("emptyuser");
+
+        when(userAccountRepository.findByUsername("emptyuser"))
+                .thenReturn(Optional.of(user));
+        when(userBookRepository.findByUserAccount(user))
+                .thenReturn(List.of());
+
+        List<UserBookDto> result = userBookService.readUserBooks("emptyuser");
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 }

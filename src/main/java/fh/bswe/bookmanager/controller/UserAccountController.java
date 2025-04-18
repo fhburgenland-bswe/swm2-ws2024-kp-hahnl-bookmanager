@@ -3,6 +3,7 @@ package fh.bswe.bookmanager.controller;
 import fh.bswe.bookmanager.dto.BookDto;
 import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
+import fh.bswe.bookmanager.dto.UserBookDto;
 import fh.bswe.bookmanager.exception.BookNotFoundException;
 import fh.bswe.bookmanager.exception.UserBookExistsException;
 import fh.bswe.bookmanager.exception.UserBookNotFoundException;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * REST controller for managing user accounts.
@@ -255,6 +258,36 @@ public class UserAccountController {
             userBookService.removeBookFromUserLibrary(username, isbn);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (UserNotFoundException | BookNotFoundException | UserBookNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Retrieves the list of books associated with a specific user.
+     * <p>
+     * This endpoint returns a list of {@link UserBookDto}
+     * entries representing the books stored in a user's personal library.
+     * </p>
+     *
+     * @param username the username of the user whose book library is to be retrieved;
+     *                 must be 5–20 characters long and contain only letters, numbers, and underscores
+     * @return {@link ResponseEntity} with:
+     *         <ul>
+     *             <li>HTTP 200 OK and an array of {@link UserBookDto} if successful</li>
+     *             <li>HTTP 400 Bad Request if the user does not exist</li>
+     *         </ul>
+     */
+    @GetMapping("/{username}/books")
+    public ResponseEntity<?> readUserBooksLibrary(
+            @NotBlank
+            @PathVariable("username")
+            @Size(min = 5, max = 20, message = "The length must be between 5 and 20 characters")
+            @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username must be 5-20 characters and contain only letters, numbers, and underscores")
+            final String username) {
+        try {
+            final List<UserBookDto> userBookDtos = userBookService.readUserBooks(username);
+            return new ResponseEntity<>(userBookDtos.toArray(), HttpStatus.OK);
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
