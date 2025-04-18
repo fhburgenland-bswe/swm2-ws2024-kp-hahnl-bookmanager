@@ -2,8 +2,11 @@ package fh.bswe.bookmanager;
 
 import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.entity.Book;
+import fh.bswe.bookmanager.entity.UserBook;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,6 +33,8 @@ public class BookTest {
         book.setLanguage("en");
         byte[] coverImage = new byte[]{1, 2, 3};
         book.setCoverImage(coverImage);
+        List<UserBook> userBooks = List.of(new UserBook());
+        book.setUserBooks(userBooks);
 
         assertEquals(1, book.getId());
         assertEquals("1234567890123", book.getIsbn());
@@ -40,6 +45,7 @@ public class BookTest {
         assertEquals("cover_key", book.getCoverKey());
         assertEquals("http://cover.link", book.getCoverLink());
         assertEquals("en", book.getLanguage());
+        assertEquals(userBooks, book.getUserBooks());
         assertArrayEquals(coverImage, book.getCoverImage());
     }
 
@@ -118,7 +124,7 @@ public class BookTest {
      * Tests that two {@link Book} instances with different isbn values are not equal.
      */
     @Test
-    public void testBookEqualsFalse() {
+    public void testBookEqualsFalseIsbn() {
         Book book = new Book();
         book.setId(1);
         book.setIsbn("0123456789");
@@ -126,6 +132,22 @@ public class BookTest {
         Book book2 = new Book();
         book2.setId(1);
         book2.setIsbn("0123456780");
+
+        Assertions.assertFalse(book.equals(book2));
+    }
+
+    /**
+     * Tests that two {@link Book} instances with different id values are not equal.
+     */
+    @Test
+    public void testBookEqualsFalseId() {
+        Book book = new Book();
+        book.setId(2);
+        book.setIsbn("0123456789");
+
+        Book book2 = new Book();
+        book2.setId(1);
+        book2.setIsbn("0123456789");
 
         Assertions.assertFalse(book.equals(book2));
     }
