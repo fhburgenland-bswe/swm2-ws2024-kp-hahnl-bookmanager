@@ -2,11 +2,16 @@ package fh.bswe.bookmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fh.bswe.bookmanager.controller.UserAccountController;
+import fh.bswe.bookmanager.dto.BookDto;
 import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
+import fh.bswe.bookmanager.exception.BookNotFoundException;
+import fh.bswe.bookmanager.exception.ConnectionErrorException;
+import fh.bswe.bookmanager.exception.UserBookExistsException;
 import fh.bswe.bookmanager.exception.UserExistsException;
 import fh.bswe.bookmanager.exception.UserNotFoundException;
 import fh.bswe.bookmanager.service.UserAccountService;
+import fh.bswe.bookmanager.service.UserBookService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -54,6 +59,9 @@ public class UserAccountControllerTest {
      */
     @MockitoBean
     private UserAccountService userAccountService;
+
+    @MockitoBean
+    private UserBookService userBookService;
 
     /**
      * Tests successful user creation with valid input.
@@ -366,5 +374,97 @@ public class UserAccountControllerTest {
 
         mockMvc.perform(delete("/api/users/notfound"))
                 .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests successful addition of a book to a user's library.
+     * <p>
+     * Simulates a valid POST request to add a book by ISBN to the given username.
+     * Verifies that the controller responds with HTTP 201 (Created) and the correct book details.
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testAddBookToUserLibrary() throws Exception {
+        BookDto response = new BookDto();
+        response.setId(1);
+        response.setPublishers("Test publishers");
+        response.setAuthors("Test authors");
+        response.setTitle("Test title");
+        response.setIsbn("0123456789");
+
+        when(userBookService.storeBookToUserLibrary("validuser", "0123456789")).thenReturn(response);
+
+        mockMvc.perform(post("/api/users/validuser/books/0123456789"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.publishers").value("Test publishers"))
+                .andExpect(jsonPath("$.authors").value("Test authors"))
+                .andExpect(jsonPath("$.title").value("Test title"))
+                .andExpect(jsonPath("$.isbn").value("0123456789"));
+    }
+
+    /**
+     * Tests behavior when the specified user does not exist.
+     * <p>
+     * Expects the service to throw {@link UserNotFoundException}, and the controller
+     * to respond with HTTP 400 (Bad Request).
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testAddBookToUserLibraryUserNotFound() throws Exception {
+        when(userBookService.storeBookToUserLibrary("validuser", "0123456789")).thenThrow(new UserNotFoundException());
+
+        mockMvc.perform(post("/api/users/validuser/books/0123456789"))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests behavior when the specified book is not found.
+     * <p>
+     * Expects the service to throw {@link BookNotFoundException}, and the controller
+     * to respond with HTTP 400 (Bad Request).
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testAddBookToUserLibraryBookNotFound() throws Exception {
+        when(userBookService.storeBookToUserLibrary("validuser", "0123456789")).thenThrow(new BookNotFoundException("not found"));
+
+        mockMvc.perform(post("/api/users/validuser/books/0123456789"))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests behavior when a user tries to add a book that already exists in their library.
+     * <p>
+     * Expects the service to throw {@link UserBookExistsException}, and the controller
+     * to respond with HTTP 409 (Conflict).
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testAddBookToUserLibraryUserBookExists() throws Exception {
+        when(userBookService.storeBookToUserLibrary("validuser", "0123456789")).thenThrow(new UserBookExistsException("already exists"));
+
+        mockMvc.perform(post("/api/users/validuser/books/0123456789"))
+                .andExpect(status().isConflict());
+    }
+
+    /**
+     * Tests handling of a connection error during book addition.
+     * <p>
+     * Simulates a failure to reach the OpenLibrary service and expects the controller
+     * to return HTTP 500 (Internal Server Error) when {@link ConnectionErrorException} is thrown.
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testAddBookToUserLibraryConnectionError() throws Exception {
+        when(userBookService.storeBookToUserLibrary("validuser", "0123456789")).thenThrow(new ConnectionErrorException("connection error"));
+
+        mockMvc.perform(post("/api/users/validuser/books/0123456789"))
+                .andExpect(status().isInternalServerError());
     }
 }

@@ -5,6 +5,7 @@ import fh.bswe.bookmanager.dto.OpenLibraryBookDto;
 import fh.bswe.bookmanager.entity.Book;
 import fh.bswe.bookmanager.exception.BookNotFoundException;
 import fh.bswe.bookmanager.helper.OpenLibraryFetcher;
+import fh.bswe.bookmanager.repository.BookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.List;
 @Service
 public class OpenLibraryService {
     private final BookService bookService;
+    private final BookRepository bookRepository;
     private final OpenLibraryFetcher openLibraryFetcher;
     private final Logger logger = LoggerFactory.getLogger(OpenLibraryService.class);
 
@@ -28,8 +30,9 @@ public class OpenLibraryService {
      * @param bookService the book service for interaction with the book database
      * @param openLibraryFetcher the OpenLibrary helper for using its API
      */
-    public OpenLibraryService(final BookService bookService, final OpenLibraryFetcher openLibraryFetcher) {
+    public OpenLibraryService(final BookService bookService, final BookRepository bookRepository, final OpenLibraryFetcher openLibraryFetcher) {
         this.bookService = bookService;
+        this.bookRepository = bookRepository;
         this.openLibraryFetcher = openLibraryFetcher;
     }
 
@@ -58,9 +61,7 @@ public class OpenLibraryService {
 
         final Book book = mapToEntity(bookDto, fetchAllAuthors(bookDto), image);
 
-        bookService.save(book);
-
-        return book;
+        return bookRepository.save(book);
     }
 
     private Book mapToEntity(final OpenLibraryBookDto bookDto, final String authors, final byte[] image) {

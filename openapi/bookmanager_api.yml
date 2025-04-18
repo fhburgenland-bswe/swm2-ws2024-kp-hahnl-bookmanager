@@ -197,6 +197,8 @@ paths:
                 $ref: '#/components/schemas/Book'
         '400':
           description: User or book not existing
+        '409':
+          description: Book was already added to library
         '422':
           description: Validation exception
         default:
