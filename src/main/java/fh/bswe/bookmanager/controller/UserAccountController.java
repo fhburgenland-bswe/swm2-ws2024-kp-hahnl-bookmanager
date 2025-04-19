@@ -33,8 +33,6 @@ import java.util.List;
  * REST controller for managing user accounts.
  * <p>
  * This controller handles incoming HTTP requests related to user accounts.
- * It delegates business logic to the {@link UserAccountService} and returns appropriate
- * HTTP responses depending on the outcome.
  * </p>
  */
 @SuppressWarnings({
@@ -52,6 +50,7 @@ public class UserAccountController {
      * Constructs a new {@code UserAccountController} with the given service.
      *
      * @param userAccountService the service used for user account operations
+     * @param userBookService    the service used for user-book operations.
      */
     public UserAccountController(final UserAccountService userAccountService,
                                  final UserBookService userBookService) {

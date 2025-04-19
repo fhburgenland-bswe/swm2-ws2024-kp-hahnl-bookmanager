@@ -4,6 +4,7 @@ import fh.bswe.bookmanager.dto.BookDto;
 import fh.bswe.bookmanager.entity.Book;
 import fh.bswe.bookmanager.exception.BookExistsException;
 import fh.bswe.bookmanager.exception.BookNotFoundException;
+import fh.bswe.bookmanager.helper.Mapper;
 import fh.bswe.bookmanager.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
@@ -61,21 +62,6 @@ public class BookService {
             throw new BookExistsException();
         }
 
-        return mapToDto(bookRepository.save(book));
-    }
-
-    private BookDto mapToDto(final Book book) {
-        final BookDto bookDto = new BookDto();
-        bookDto.setId(book.getId());
-        bookDto.setIsbn(book.getIsbn());
-        bookDto.setTitle(book.getTitle());
-        bookDto.setAuthors(book.getAuthors());
-        bookDto.setLanguage(book.getLanguage());
-        bookDto.setPublishDate(book.getPublishDate());
-        bookDto.setPublishers(book.getPublishers());
-        bookDto.setCoverImage(book.getCoverImage());
-        bookDto.setCoverKey(book.getCoverKey());
-        bookDto.setCoverLink(book.getCoverLink());
-        return bookDto;
+        return Mapper.mapToDto(bookRepository.save(book));
     }
 }
