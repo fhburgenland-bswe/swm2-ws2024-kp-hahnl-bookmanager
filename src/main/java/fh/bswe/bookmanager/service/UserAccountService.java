@@ -5,6 +5,7 @@ import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
 import fh.bswe.bookmanager.entity.UserAccount;
 import fh.bswe.bookmanager.exception.UserExistsException;
 import fh.bswe.bookmanager.exception.UserNotFoundException;
+import fh.bswe.bookmanager.helper.Mapper;
 import fh.bswe.bookmanager.repository.UserAccountRepository;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +45,7 @@ public class UserAccountService {
             throw new UserNotFoundException();
         }
 
-        return mapToDto(userAccount.get());
+        return Mapper.mapToDto(userAccount.get());
     }
 
     /**
@@ -62,7 +63,7 @@ public class UserAccountService {
             throw new UserExistsException();
         }
 
-        return mapToDto(userAccountRepository.save(mapToEntity(userAccountDto)));
+        return Mapper.mapToDto(userAccountRepository.save(Mapper.mapToEntity(userAccountDto)));
     }
 
     /**
@@ -91,7 +92,7 @@ public class UserAccountService {
         userAccount.get().setFirstname(userAccountUpdateDto.getFirstname());
         userAccount.get().setLastname(userAccountUpdateDto.getLastname());
 
-        return mapToDto(userAccountRepository.save(userAccount.get()));
+        return Mapper.mapToDto(userAccountRepository.save(userAccount.get()));
     }
 
     /**
@@ -117,22 +118,5 @@ public class UserAccountService {
 
     private Optional<UserAccount> findUserByUsername(final String username) {
         return userAccountRepository.findByUsername(username);
-    }
-
-    private UserAccount mapToEntity(final UserAccountDto userAccountDto) {
-        final UserAccount userAccount = new UserAccount();
-        userAccount.setUsername(userAccountDto.getUsername());
-        userAccount.setFirstname(userAccountDto.getFirstname());
-        userAccount.setLastname(userAccountDto.getLastname());
-        return userAccount;
-    }
-
-    private UserAccountDto mapToDto(final UserAccount user) {
-        final UserAccountDto dto = new UserAccountDto();
-        dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
-        dto.setFirstname(user.getFirstname());
-        dto.setLastname(user.getLastname());
-        return dto;
     }
 }

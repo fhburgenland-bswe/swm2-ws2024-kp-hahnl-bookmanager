@@ -9,6 +9,7 @@ import fh.bswe.bookmanager.exception.BookNotFoundException;
 import fh.bswe.bookmanager.exception.UserBookExistsException;
 import fh.bswe.bookmanager.exception.UserBookNotFoundException;
 import fh.bswe.bookmanager.exception.UserNotFoundException;
+import fh.bswe.bookmanager.helper.Mapper;
 import fh.bswe.bookmanager.repository.BookRepository;
 import fh.bswe.bookmanager.repository.UserAccountRepository;
 import fh.bswe.bookmanager.repository.UserBookRepository;
@@ -83,7 +84,7 @@ public class UserBookService {
 
         userBookRepository.save(userBook);
 
-        return mapToDto(book);
+        return Mapper.mapToDto(book);
     }
 
     /**
@@ -141,31 +142,6 @@ public class UserBookService {
 
         final List<UserBook> userBooks = userBookRepository.findByUserAccount(userAccount.get());
 
-        return userBooks.stream().map(this::mapToDto).collect(Collectors.toList());
-    }
-
-    private BookDto mapToDto(final Book book) {
-        final BookDto bookDto = new BookDto();
-        bookDto.setId(book.getId());
-        bookDto.setIsbn(book.getIsbn());
-        bookDto.setTitle(book.getTitle());
-        bookDto.setAuthors(book.getAuthors());
-        bookDto.setLanguage(book.getLanguage());
-        bookDto.setPublishDate(book.getPublishDate());
-        bookDto.setPublishers(book.getPublishers());
-        bookDto.setCoverImage(book.getCoverImage());
-        bookDto.setCoverKey(book.getCoverKey());
-        bookDto.setCoverLink(book.getCoverLink());
-        return bookDto;
-    }
-
-    private UserBookDto mapToDto(final UserBook userBook) {
-        final UserBookDto bookDto = new UserBookDto();
-        bookDto.setIsbn(userBook.getBook().getIsbn());
-        bookDto.setTitle(userBook.getBook().getTitle());
-        bookDto.setAuthor(userBook.getBook().getAuthors());
-        bookDto.setRating(userBook.getRating());
-        bookDto.setComment(userBook.getComment());
-        return bookDto;
+        return userBooks.stream().map(Mapper::mapToDto).collect(Collectors.toList());
     }
 }

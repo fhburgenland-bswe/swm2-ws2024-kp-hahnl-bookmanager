@@ -1,9 +1,11 @@
 package fh.bswe.bookmanager.service;
 
+import fh.bswe.bookmanager.dto.BookDto;
 import fh.bswe.bookmanager.dto.OpenLibraryAuthorDto;
 import fh.bswe.bookmanager.dto.OpenLibraryBookDto;
 import fh.bswe.bookmanager.entity.Book;
 import fh.bswe.bookmanager.exception.BookNotFoundException;
+import fh.bswe.bookmanager.helper.Mapper;
 import fh.bswe.bookmanager.helper.OpenLibraryFetcher;
 import fh.bswe.bookmanager.repository.BookRepository;
 import org.slf4j.Logger;
@@ -62,6 +64,17 @@ public class OpenLibraryService {
         final Book book = mapToEntity(bookDto, fetchAllAuthors(bookDto), image);
 
         return bookRepository.save(book);
+    }
+
+    /**
+     * Finds a book by ISBN. If the book is not found in the database,
+     * it attempts to fetch the book data and cover from the Open Library API and stores it.
+     *
+     * @param isbn the ISBN of the book to look up
+     * @return the found or newly stored Book DTO
+     */
+    public BookDto findAndStoreBookByIsbnToDto(final String isbn) {
+        return Mapper.mapToDto(findAndStoreBookByIsbn(isbn));
     }
 
     private Book mapToEntity(final OpenLibraryBookDto bookDto, final String authors, final byte[] image) {
