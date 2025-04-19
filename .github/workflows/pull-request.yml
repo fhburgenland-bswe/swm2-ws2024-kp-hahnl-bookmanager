@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  checks: write
 
 jobs:
   check:
@@ -52,8 +53,11 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
-    name: SBOM & Vulnerability Scan
+    name: SBOM and Vulnerability Scan
     steps:
+      - uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf # v2.11.1
+        with:
+          egress-policy: audit
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -68,3 +72,18 @@ jobs:
       - name: Run Grype Scan
         run: |
           grype sbom:sbom.json -c config/grype/grype-config.yml --file grype-report.txt
+
+  hadolint:
+    runs-on: ubuntu-latest
+    name: Lint Dockerfile
+
+    steps:
+      - uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf # v2.11.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: 'Dockerfile'

@@ -38,16 +38,37 @@ authentication support and high scalability in mind.
 - Gradle 8.13
 - OpenLibrary API integration
 - H2 Database (default) / PostgreSQL (optional)
-- Docker + GitHub Container Registry (GHCR)
+- Docker + GitHub Container Registry (FROM openjdk:23-slim
+
+COPY build/libs/accountservice.jar /app.jarGHCR)
 - Kubernetes deployment via Helm
 - CI/CD with GitHub Actions
 
 ---
 
 ## Getting Started
-### 1. Run Locally (H2)
 
-```bash
+### 1. Download
+
+Download repository from Github with:
+
+```shell
+git clone https://github.com/fhburgenland-bswe/swm2-ws2024-kp-hahnl-bookmanager.git
+```
+
+### 2. Install
+
+```shell
+# change to project directory
+cd swm2-ws2024-kp-hahnl-bookmanager
+
+# install all dependencies
+npm install
+```
+
+### 3. Run Locally (H2)
+
+```shell
 ./gradlew bootRun
 ```
 ---
@@ -68,6 +89,33 @@ authentication support and high scalability in mind.
 
 ---
 
+## Database
+
+Currently, a H2 InMemory database is used to store all data. The connection is configured
+with the `application.yml`. You can change the database with adding the appropriate
+dependencies to the `build.gradle` and edit the `application.yml`.
+
+e.g. PostgreSQL:
+
+```groovy
+// build.gradle
+dependencies {
+    runtimeOnly 'org.postgresql:postgresql'
+}
+```
+
+```yaml
+# application.yml
+datasource:
+  url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require&sslrootcert=classpath:cert/ca.pem
+  username: ${DB_USERNAME}
+  password: ${DB_PASSWORD}
+jpa:
+  properties:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+```
+
 ## Development Tools
 ### Quality & Security Tools
 
@@ -86,7 +134,7 @@ authentication support and high scalability in mind.
 
 Run PMD with:
 
-```bash
+```shell
 ./gradlew pmdMain
 ```
 
@@ -94,7 +142,7 @@ Run PMD with:
 
 Run Checkstyle with:
 
-```bash
+```shell
 ./gradlew check
 ```
 
@@ -104,7 +152,7 @@ You have to install Syft before using. Instructions can be found [here](https://
 
 Create SBOM with:
 
-```bash
+```shell
 syft . -o syft-json > sbom.json
 ```
 
@@ -115,7 +163,7 @@ Create the SBOM with Syft before running Grype.
 
 Run Grype with:
 
-```bash
+```shell
 grype sbom:sbom.json -c config/grype/grype-config.yml
 ```
 
@@ -133,7 +181,7 @@ The pipeline is defined in `.github/workflows/main.yml` and includes:
 ---
 
 ## Scalability & Architecture
-See [architecture.md](architecture.md) for a detailed breakdown of scalability, container strategy, 
+See [architecture.md](doc/architecture.md) for a detailed breakdown of scalability, container strategy, 
 and future-proofing.
 
 Highlights:
@@ -149,13 +197,13 @@ Highlights:
 
 Run unit tests
 
-```bash
+```shell
 ./gradlew test
 ```
 
 If you want to run tests with coverage report use:
 
-```bash
+```shell
 ./gradlew test jacocoTestReport
 ```
 
