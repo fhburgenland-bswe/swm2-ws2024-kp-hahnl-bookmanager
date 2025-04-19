@@ -6,6 +6,7 @@ import fh.bswe.bookmanager.entity.UserBook;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for managing {@link fh.bswe.bookmanager.entity.UserBook} entities.
@@ -42,4 +43,17 @@ public interface UserBookRepository extends CrudRepository<UserBook, Long> {
      * @return              all books associates the given user account
      */
     List<UserBook> findByUserAccount(UserAccount userAccount);
+
+    /**
+     * Retrieves a {@link UserBook} entry that associates the specified user account with a specific book.
+     * <p>
+     * This method is typically used to fetch a user's specific interaction with a book,
+     * such as for checking or updating metadata like ratings or comments.
+     * </p>
+     *
+     * @param userAccount the user account to look up
+     * @param book        the book to look up
+     * @return an {@link Optional} containing the matching {@link UserBook} if found, or empty if not
+     */
+    Optional<UserBook> findByUserAccountAndBook(UserAccount userAccount, Book book);
 }

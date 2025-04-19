@@ -54,16 +54,17 @@ authentication support and high scalability in mind.
 
 ## Endpoints (MLP Scope)
 
-| Method | Path                               | Description                                |
-|--------|------------------------------------|--------------------------------------------|
-| POST   | /api/users                         | Create a new user                          |
-| GET    | /api/users/{username}              | Get user details                           |
-| PUT    | /api/users/{username}              | Update user data                           |
-| DELETE | /api/users/{username}              | Delete users and associations              |
-| POST   | /api/users/{username}/books/{ISBN} | Add a book to a specific user by ISBN      |
-| DELETE | /api/users/{username}/books/{ISBN} | Remove a book from a specific user by ISBN |
-| GET    | /api/users/{username}/books        | List all books assigned to a user          |
-| GET    | /api/books/{isbn}                  | Get book details by ISBN (internal use)    |
+| Method | Path                                       | Description                                                  |
+|--------|--------------------------------------------|--------------------------------------------------------------|
+| POST   | /api/users                                 | Create a new user                                            |
+| GET    | /api/users/{username}                      | Get user details                                             |
+| PUT    | /api/users/{username}                      | Update user data                                             |
+| DELETE | /api/users/{username}                      | Delete users and associations                                |
+| POST   | /api/users/{username}/books/{ISBN}         | Add a book to a specific user by ISBN                        |
+| DELETE | /api/users/{username}/books/{ISBN}         | Remove a book from a specific user by ISBN                   |
+| GET    | /api/users/{username}/books                | List all books assigned to a user                            |
+| GET    | /api/books/{isbn}                          | Get book details by ISBN (internal use)                      |
+| PATCH  | /api/users/{username}/books/{ISBN}/rating  | Add a rating and comment to books of a specific user by ISBN |
 
 ---
 

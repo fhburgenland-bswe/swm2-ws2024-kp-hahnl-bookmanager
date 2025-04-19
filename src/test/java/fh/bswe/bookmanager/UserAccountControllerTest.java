@@ -24,12 +24,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -608,5 +610,102 @@ public class UserAccountControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.['readUserBooksLibrary.username']")
                         .value("The length must be between 5 and 20 characters"));
+    }
+
+    /**
+     * Tests successful rating of a book for a user.
+     * Expects 200 Created and returns updated UserBookDto.
+     */
+    @Test
+    void testAddRatingSuccess() throws Exception {
+        UserBookDto request = new UserBookDto();
+        request.setRating(5);
+        request.setComment("Great book!");
+
+        UserBookDto response = new UserBookDto();
+        response.setRating(5);
+        response.setComment("Great book!");
+        response.setTitle("Some Title");
+        response.setAuthor("Author X");
+        response.setIsbn("1234567890");
+
+        when(userBookService.addRating(eq("validuser"), eq("1234567890"), any(UserBookDto.class)))
+                .thenReturn(response);
+
+        mockMvc.perform(patch("/api/users/validuser/books/1234567890/rating")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rating").value(5))
+                .andExpect(jsonPath("$.comment").value("Great book!"));
+    }
+
+    /**
+     * Tests case where the user is not found.
+     * Expects 400 Bad Request.
+     */
+    @Test
+    void testAddRatingUserNotFound() throws Exception {
+        UserBookDto request = new UserBookDto();
+        request.setRating(4);
+
+        when(userBookService.addRating(eq("notfound"), eq("1234567890"), any(UserBookDto.class)))
+                .thenThrow(new UserNotFoundException());
+
+        mockMvc.perform(patch("/api/users/notfound/books/1234567890/rating")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests case where the book is not found.
+     * Expects 400 Bad Request.
+     */
+    @Test
+    void testAddRatingBookNotFound() throws Exception {
+        UserBookDto request = new UserBookDto();
+        request.setRating(4);
+
+        when(userBookService.addRating(eq("validuser"), eq("0000000000"), any(UserBookDto.class)))
+                .thenThrow(new BookNotFoundException("Book not found"));
+
+        mockMvc.perform(patch("/api/users/validuser/books/0000000000/rating")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests case where user has not stored the book and tries to rate it.
+     * Expects 400 Bad Request.
+     */
+    @Test
+    void testAddRatingUserBookRelationNotFound() throws Exception {
+        UserBookDto request = new UserBookDto();
+        request.setRating(4);
+
+        when(userBookService.addRating(eq("validuser"), eq("1234567890"), any(UserBookDto.class)))
+                .thenThrow(new UserBookNotFoundException("UserBook relation does not exist"));
+
+        mockMvc.perform(patch("/api/users/validuser/books/1234567890/rating")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests invalid rating input (e.g., rating out of range).
+     * Expects 422 Unprocessable Entity.
+     */
+    @Test
+    void testAddRatingValidationFails() throws Exception {
+        UserBookDto request = new UserBookDto();
+        request.setRating(null);
+
+        mockMvc.perform(patch("/api/users/validuser/books/1234567890/rating")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnprocessableEntity());
     }
 }

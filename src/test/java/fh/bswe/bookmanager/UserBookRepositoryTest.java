@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -159,6 +160,57 @@ public class UserBookRepositoryTest {
         user = userAccountRepository.save(user);
 
         List<UserBook> result = userBookRepository.findByUserAccount(user);
+
+        assertTrue(result.isEmpty());
+    }
+
+    /**
+     * Tests that a UserBook entity is correctly found by user account and book.
+     */
+    @Test
+    void testFindByUserAccountAndBookFound() {
+        UserAccount user = new UserAccount();
+        user.setUsername("john_doe");
+        user.setFirstname("John");
+        user.setLastname("Doe");
+        user = userAccountRepository.save(user);
+
+        Book book = new Book();
+        book.setIsbn("1234567890");
+        book.setTitle("Test Book");
+        book = bookRepository.save(book);
+
+        UserBook userBook = new UserBook();
+        userBook.setUser(user);
+        userBook.setBook(book);
+        userBook.setRating(5);
+        userBook.setComment("Great book!");
+        userBookRepository.save(userBook);
+
+        Optional<UserBook> result = userBookRepository.findByUserAccountAndBook(user, book);
+
+        assertTrue(result.isPresent());
+        assertEquals("Great book!", result.get().getComment());
+        assertEquals(5, result.get().getRating());
+    }
+
+    /**
+     * Tests that an empty result is returned when no UserBook entry matches the given user and book.
+     */
+    @Test
+    void testFindByUserAccountAndBookNotFound() {
+        UserAccount user = new UserAccount();
+        user.setUsername("jane_doe");
+        user.setFirstname("Jane");
+        user.setLastname("Doe");
+        user = userAccountRepository.save(user);
+
+        Book book = new Book();
+        book.setIsbn("9876543210");
+        book.setTitle("Another Book");
+        book = bookRepository.save(book);
+
+        Optional<UserBook> result = userBookRepository.findByUserAccountAndBook(user, book);
 
         assertTrue(result.isEmpty());
     }

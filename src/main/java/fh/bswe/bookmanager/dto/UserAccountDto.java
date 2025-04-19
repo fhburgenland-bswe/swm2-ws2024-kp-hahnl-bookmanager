@@ -1,6 +1,7 @@
 package fh.bswe.bookmanager.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -17,16 +18,19 @@ import java.util.Objects;
 public class UserAccountDto {
     private Integer id;
 
+    @NotNull
     @NotBlank(message = "Must not be empty")
     @Size(min = 5, max = 20, message = "The length must be between 5 and 20 characters!")
     @Pattern(regexp = "^[a-zA-Z0-9_]{5,20}$", message = "Username must be 5-20 characters and contain only letters, numbers, and underscores")
     private String username;
 
+    @NotNull
     @NotBlank(message = "Must not be empty")
     @Size(min = 3, max = 20, message = "The length must be between 3 and 20 characters!")
     @Pattern(regexp = "^[a-zA-Z]{3,20}$", message = "Firstname must be 3-20 letters only")
     private String firstname;
 
+    @NotNull
     @NotBlank(message = "Must not be empty")
     @Size(min = 3, max = 20, message = "The length must be between 3 and 20 characters!")
     @Pattern(regexp = "^[a-zA-Z]{3,20}$", message = "Lastname must be 3-20 letters only")

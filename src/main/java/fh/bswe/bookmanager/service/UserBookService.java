@@ -144,4 +144,51 @@ public class UserBookService {
 
         return userBooks.stream().map(Mapper::mapToDto).collect(Collectors.toList());
     }
+
+    /**
+     * Adds or updates a rating and comment for a specific book in a user's library.
+     * <p>
+     * The method performs the following steps:
+     * <ul>
+     *     <li>Validates if the user exists.</li>
+     *     <li>Checks if the book exists in the system.</li>
+     *     <li>Ensures that the book is already associated with the user.</li>
+     *     <li>Updates the rating and comment fields of the existing user-book mapping.</li>
+     *     <li>Persists the changes and returns the updated {@link UserBookDto}.</li>
+     * </ul>
+     *
+     * @param username the username of the user
+     * @param isbn the ISBN of the book
+     * @param userBookDto the DTO containing the new rating and comment
+     * @return the updated {@link UserBookDto}
+     * @throws UserNotFoundException if the user does not exist
+     * @throws BookNotFoundException if the book is not found in the database
+     * @throws UserBookNotFoundException if the user has not added the book yet
+     */
+    public UserBookDto addRating(final String username, final String isbn, final UserBookDto userBookDto) throws UserNotFoundException {
+        final Optional<UserAccount> userAccount = userAccountRepository.findByUsername(username);
+
+        if (userAccount.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+
+        final Optional<Book> book = bookRepository.findByIsbn(isbn);
+
+        if (book.isEmpty()) {
+            throw new BookNotFoundException("The book %s is not in the database.".formatted(isbn));
+        }
+
+        final Optional<UserBook> userBook = userBookRepository.findByUserAccountAndBook(userAccount.get(), book.get());
+
+        if (userBook.isEmpty()) {
+            throw new UserBookNotFoundException("The book %s was not found for user %s".formatted(isbn, username));
+        }
+
+        userBook.get().setRating(userBookDto.getRating());
+        userBook.get().setComment(userBookDto.getComment());
+
+        final UserBook savedUserBook = userBookRepository.save(userBook.get());
+
+        return Mapper.mapToDto(savedUserBook);
+    }
 }
