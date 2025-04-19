@@ -243,4 +243,82 @@ public class UserBookServiceTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
+
+    /**
+     * Tests the successful update of a rating and comment for a user-book entry.
+     */
+    @Test
+    void testAddRatingSuccess() throws UserNotFoundException {
+        String username = "testuser";
+        String isbn = "1234567890";
+
+        UserAccount user = new UserAccount();
+        user.setUsername(username);
+
+        Book book = new Book();
+        book.setIsbn(isbn);
+
+        UserBook userBook = new UserBook();
+        userBook.setBook(book);
+        userBook.setUser(user);
+
+        UserBookDto userBookDto = new UserBookDto();
+        userBookDto.setRating(5);
+        userBookDto.setComment("Excellent!");
+
+        when(userAccountRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(bookRepository.findByIsbn(isbn)).thenReturn(Optional.of(book));
+        when(userBookRepository.findByUserAccountAndBook(user, book)).thenReturn(Optional.of(userBook));
+        when(userBookRepository.save(userBook)).thenReturn(userBook);
+
+        UserBookDto result = userBookService.addRating(username, isbn, userBookDto);
+
+        assertEquals(5, result.getRating());
+        assertEquals("Excellent!", result.getComment());
+    }
+
+    /**
+     * Tests that a {@link UserNotFoundException} is thrown when the user does not exist.
+     */
+    @Test
+    void testAddRatingUserNotFound() {
+        when(userAccountRepository.findByUsername("missing")).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () ->
+                userBookService.addRating("missing", "1234567890", new UserBookDto()));
+    }
+
+    /**
+     * Tests that a {@link BookNotFoundException} is thrown when the book is not found.
+     */
+    @Test
+    void testAddRatingBookNotFound() {
+        UserAccount user = new UserAccount();
+        user.setUsername("test");
+
+        when(userAccountRepository.findByUsername("test")).thenReturn(Optional.of(user));
+        when(bookRepository.findByIsbn("9999999999")).thenReturn(Optional.empty());
+
+        assertThrows(BookNotFoundException.class, () ->
+                userBookService.addRating("test", "9999999999", new UserBookDto()));
+    }
+
+    /**
+     * Tests that a {@link UserBookNotFoundException} is thrown when the book is not associated with the user.
+     */
+    @Test
+    void testAddRatingUserBookNotFound() {
+        UserAccount user = new UserAccount();
+        user.setUsername("test");
+
+        Book book = new Book();
+        book.setIsbn("123");
+
+        when(userAccountRepository.findByUsername("test")).thenReturn(Optional.of(user));
+        when(bookRepository.findByIsbn("123")).thenReturn(Optional.of(book));
+        when(userBookRepository.findByUserAccountAndBook(user, book)).thenReturn(Optional.empty());
+
+        assertThrows(UserBookNotFoundException.class, () ->
+                userBookService.addRating("test", "123", new UserBookDto()));
+    }
 }

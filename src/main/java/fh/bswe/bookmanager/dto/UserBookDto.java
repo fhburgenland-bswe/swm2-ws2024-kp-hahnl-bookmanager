@@ -1,5 +1,9 @@
 package fh.bswe.bookmanager.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 /**
  * Data Transfer Object (DTO) that represents a user's interaction with a book.
  * <p>
@@ -12,6 +16,10 @@ public class UserBookDto {
     private String isbn;
     private String title;
     private String author;
+
+    @NotNull
+    @Min(value = 1, message = "Rating must be at least 1")
+    @Max(value = 5, message = "Rating must be at most 5")
     private Integer rating;
     private String comment;
 

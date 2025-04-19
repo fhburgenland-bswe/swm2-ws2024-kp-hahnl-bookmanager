@@ -233,6 +233,60 @@ paths:
           description: Validation exception
         default:
           description: Unexpected error
+  /api/users/{username}/books/{ISBN}/rating:
+    patch:
+      tags:
+        - user
+      summary: Add a rating and comment of a book to the user's personal Library
+      description: Add a rating and comment of a book to the user's personal Library
+      operationId: addRatingUsersBooks
+      parameters:
+        - name: username
+          in: path
+          description: The username of user account
+          required: true
+          schema:
+            type: string
+            format: '^[a-zA-Z0-9_]{5,20}$'
+        - name: ISBN
+          in: path
+          description: The ISBN of the book to add
+          required: true
+          schema:
+            type: string
+            format: '^\d{10}(\d{3})?$'
+      requestBody:
+        description: Add a rating and comment to a book from the users library
+        content:
+          application/json:
+            schema:
+              description: Rating and Comment
+              type: object
+              properties:
+                rating:
+                  type: integer
+                  format: int32
+                  example: 123
+                  nullable: false
+                comment:
+                  type: string
+                  example: "This is a comment to the book"
+                  nullable: true
+      responses:
+        '201':
+          description: Book added to personal library
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: User or book not existing
+        '409':
+          description: Book was already added to library
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
   /api/books/{ISBN}:
     get:
       tags:

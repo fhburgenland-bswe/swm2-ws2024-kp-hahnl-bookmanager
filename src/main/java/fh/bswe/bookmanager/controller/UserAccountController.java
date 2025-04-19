@@ -4,6 +4,7 @@ import fh.bswe.bookmanager.dto.BookDto;
 import fh.bswe.bookmanager.dto.UserAccountDto;
 import fh.bswe.bookmanager.dto.UserAccountUpdateDto;
 import fh.bswe.bookmanager.dto.UserBookDto;
+import fh.bswe.bookmanager.entity.UserBook;
 import fh.bswe.bookmanager.exception.BookNotFoundException;
 import fh.bswe.bookmanager.exception.UserBookExistsException;
 import fh.bswe.bookmanager.exception.UserBookNotFoundException;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -287,6 +289,43 @@ public class UserAccountController {
             final List<UserBookDto> userBookDtos = userBookService.readUserBooks(username);
             return new ResponseEntity<>(userBookDtos.toArray(), HttpStatus.OK);
         } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Adds or updates a rating and comment for a specific book in a user's library.
+     * <p>
+     * This endpoint allows a client to patch the existing {@link UserBook} entry
+     * for a given user and book identified by the ISBN. The input must include a valid {@link UserBookDto}
+     * containing a rating (e.g. 1–5) and an optional comment.
+     * </p>
+     *
+     * @param userBookDto the DTO containing the rating and comment to be added
+     * @param username    the username of the user whose library is being modified
+     * @param isbn        the ISBN of the book to rate
+     * @return {@code 200 OK} with the updated {@link UserBookDto} on success,
+     *         {@code 400 Bad Request} if the user, book or relation is not found
+     */
+    @PatchMapping("/{username}/books/{isbn}/rating")
+    public ResponseEntity<?> addRating(
+            @Valid
+            @RequestBody
+            final UserBookDto userBookDto,
+            @NotBlank
+            @PathVariable("username")
+            @Size(min = 5, max = 20, message = "The length must be between 5 and 20 characters")
+            @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username must be 5-20 characters and contain only letters, numbers, and underscores")
+            final String username,
+            @NotBlank
+            @PathVariable("isbn")
+            @Size(min = 10, max = 13, message = "The length must be between 10 and 13 digits")
+            @Pattern(regexp = "^[0-9]{10,13}$", message = "ISBN must be 10 or 13 digits and contain only digits")
+            final String isbn) {
+        try {
+            final UserBookDto saveUserBookDto = userBookService.addRating(username, isbn, userBookDto);
+            return new ResponseEntity<>(saveUserBookDto, HttpStatus.OK);
+        } catch (UserNotFoundException | BookNotFoundException | UserBookNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
