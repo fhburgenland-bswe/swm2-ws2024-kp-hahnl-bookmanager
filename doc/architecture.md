@@ -10,14 +10,14 @@ This document describes the system architecture of the Book Management Applicati
 
 ### Components
 
-| Component          | Technology                       | Purpose |
-|--------------------|----------------------------------|---------|
-| **Backend**        | Java Spring Boot + Gradle        | Core business logic and REST API |
-| **Database**       | H2 (default) / PostgreSQL (ext.) | Book/user data storage |
-| **Containerization** | Docker                           | Reproducible runtime environment |
-| **Deployment**     | Helm + Kubernetes                | Orchestration and scalability |
-| **CI/CD**          | GitHub Actions + GHCR            | Automated build, test & deployment |
-| **Security Tools** | Checkstyle, PMD, Syft, Crype     | Static analysis and vulnerability detection |
+| Component            | Technology                       | Purpose                                     |
+|----------------------|----------------------------------|---------------------------------------------|
+| **Backend**          | Java Spring Boot + Gradle        | Core business logic and REST API            |
+| **Database**         | H2 (default) / PostgreSQL (ext.) | Book/user data storage                      |
+| **Containerization** | Docker                           | Reproducible runtime environment            |
+| **Deployment**       | Helm + Kubernetes                | Orchestration and scalability               |
+| **CI/CD**            | GitHub Actions + GHCR            | Automated build, test & deployment          |
+| **Security Tools**   | Checkstyle, PMD, Syft, Crype     | Static analysis and vulnerability detection |
 
 ---
 
@@ -26,7 +26,7 @@ This document describes the system architecture of the Book Management Applicati
 ### 1. **Backend (Spring Boot)**
 - Designed as a stateless REST API → allows **horizontal scaling** via multiple instances
 - Embedded Tomcat enables fast startup and isolated execution
-- Uses Actuator for monitoring and health endpoints
+- No usage of Actuator for monitoring and health endpoints
 
 ### 2. **Containers (Docker)**
 - Ensures consistent environments across development, staging, and production
@@ -52,13 +52,13 @@ This document describes the system architecture of the Book Management Applicati
 
 ## Growth Strategy
 
-| Growth Scenario | Architectural Feature |
-|------------------|------------------------|
-| High user load   | Horizontally scalable backend pods |
-| API rate limiting | Local caching (e.g. Redis), retry logic |
-| Persistent storage | PostgreSQL cluster with replication |
-| Global access    | Multi-region clusters possible |
-| Enhanced security | Static code analysis and dependency scanning |
+| Growth Scenario    | Architectural Feature                        |
+|--------------------|----------------------------------------------|
+| High user load     | Horizontally scalable backend pods           |
+| API rate limiting  | Local caching (e.g. Redis), retry logic      |
+| Persistent storage | PostgreSQL cluster with replication          |
+| Global access      | Multi-region clusters possible               |
+| Enhanced security  | Static code analysis and dependency scanning |
 
 ---
 
