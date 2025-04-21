@@ -178,7 +178,7 @@ kubectl get svc
 
 ---
 
-## Development Tools
+## Development
 ### Quality & Security Tools
 
 | **Tool**       | **Purpose**                                                                                |
@@ -227,6 +227,20 @@ grype sbom:sbom.json -c config/grype/grype-config.yml
 ```
 
 > 💡 The report can be found under [build/jacocoHtml/index.html](build/jacocoHtml/index.html).
+
+---
+
+### Cross-Origin Resource Sharing (CORS)
+
+To allow the frontend application (e.g., running locally or hosted on a separate domain) to 
+communicate with the backend, Cross-Origin Resource Sharing (CORS) is enabled.
+
+In this project, CORS is configured by adding the @CrossOrigin(origins = "*") annotation to 
+the controller classes. This allows requests from any origin, which is especially useful during 
+development and for SPAs hosted on different domains (e.g., S3 + CloudFront deployments).
+
+> ⚠️ Note: In a production environment, it is recommended to restrict allowed origins explicitly 
+> for improved security. This can be done by replacing "*" with a list of trusted domains.
 
 ---
 
