@@ -76,28 +76,77 @@ is using this port before you start it.
 
 ## Deployment (Helm + GHCR)
 
+### Production
+
 1. Make sure you have access to a Kubernetes cluster and Helm installed. 
 2. Add secret for GHCR credentials:
 
 ```shell
 # create secret for the default namespace
 kubectl create secret docker-registry ghcr-credentials \
---docker-server=ghcr.io \
---docker-username=GITHUB_USERNAME \
---docker-password=GITHUB_TOKEN
+  --docker-server=ghcr.io \
+  --docker-username=GITHUB_USERNAME \
+  --docker-password=GITHUB_TOKEN
 ```
 
 3. Install the Helm chart:
 
 ```shell
 # change from project-root to kubernetes directory
-cd k8s
+cd charts
 
 # install bookmanager in the default namespace
-helm install bookmanager-service bookmanager/ -f bookmanager/values.yaml
+helm install bookmanager-service bookmanager/ \
+  -f bookmanager/values.yaml
+```
+
+4. Check deployment:
+
+```shell
+# Deployment prüfen
+kubectl get pods
+kubectl get svc
 ```
 
 > 📍 See values.yaml for ingress and TLS configuration using cert-manager.
+
+### Locally testing
+
+1. Make sure you have installed kubectl and Helm.
+2. Start minikube
+
+```shell
+minikube start
+```
+
+3. Add secret for GHCR credentials:
+
+```shell
+# create secret for the default namespace
+kubectl create secret docker-registry ghcr-credentials \
+  --docker-server=ghcr.io \
+  --docker-username=GITHUB_USERNAME \
+  --docker-password=GITHUB_TOKEN
+```
+
+4. Install the Helm chart:
+```shell
+# change from project-root to kubernetes directory
+cd charts
+
+# install bookmanager in the default namespace
+helm install bookmanager-service bookmanager/ \
+  -f bookmanager/values.yaml \
+  --set ingress.enabled=false
+```
+
+5. Check deployment:
+
+```shell
+# Deployment prüfen
+kubectl get pods
+kubectl get svc
+```
 
 ---
 
