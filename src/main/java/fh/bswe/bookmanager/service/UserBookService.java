@@ -13,6 +13,7 @@ import fh.bswe.bookmanager.helper.Mapper;
 import fh.bswe.bookmanager.repository.BookRepository;
 import fh.bswe.bookmanager.repository.UserAccountRepository;
 import fh.bswe.bookmanager.repository.UserBookRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -101,6 +102,7 @@ public class UserBookService {
      * @throws BookNotFoundException     if the book does not exist in the database
      * @throws UserBookNotFoundException if the book is not associated with the user's library
      */
+    @Transactional
     public void removeBookFromUserLibrary(final String username, final String isbn) throws UserNotFoundException {
         final Optional<UserAccount> userAccount = userAccountRepository.findByUsername(username);
 
