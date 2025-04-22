@@ -204,7 +204,52 @@ public class UserBookServiceTest {
         when(userBookRepository.findByUserAccount(user))
                 .thenReturn(List.of(userBook));
 
-        List<UserBookDto> result = userBookService.readUserBooks("testuser");
+        List<UserBookDto> result = userBookService.readUserBooks("testuser", null);
+
+        assertEquals(1, result.size());
+        assertEquals("Test Book", result.get(0).getTitle());
+        assertEquals("1234567890", result.get(0).getIsbn());
+        assertEquals("Author Name", result.get(0).getAuthor());
+        assertEquals(5, result.get(0).getRating());
+        assertEquals("Nice read", result.get(0).getComment());
+    }
+
+    /**
+     * Tests that the method returns a list of rating filtered {@link UserBookDto} for a valid username.
+     */
+    @Test
+    void testReadUserBooksRating() throws UserNotFoundException {
+        UserAccount user = new UserAccount();
+        user.setUsername("testuser");
+
+        Book book1 = new Book();
+        book1.setTitle("Test Book");
+        book1.setIsbn("1234567890");
+        book1.setAuthors("Author Name");
+
+        UserBook userBook1 = new UserBook();
+        userBook1.setUser(user);
+        userBook1.setBook(book1);
+        userBook1.setRating(5);
+        userBook1.setComment("Nice read");
+
+        Book book2 = new Book();
+        book2.setTitle("Test Book 2");
+        book2.setIsbn("1234564323");
+        book2.setAuthors("Author Name 2");
+
+        UserBook userBook2 = new UserBook();
+        userBook2.setUser(user);
+        userBook2.setBook(book2);
+        userBook2.setRating(3);
+        userBook2.setComment("Nice read");
+
+        when(userAccountRepository.findByUsername("testuser"))
+                .thenReturn(Optional.of(user));
+        when(userBookRepository.findByUserAccount(user))
+                .thenReturn(List.of(userBook1, userBook2));
+
+        List<UserBookDto> result = userBookService.readUserBooks("testuser", 5);
 
         assertEquals(1, result.size());
         assertEquals("Test Book", result.get(0).getTitle());
@@ -222,7 +267,7 @@ public class UserBookServiceTest {
         when(userAccountRepository.findByUsername("nonexistent"))
                 .thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userBookService.readUserBooks("nonexistent"));
+        assertThrows(UserNotFoundException.class, () -> userBookService.readUserBooks("nonexistent", null));
     }
 
     /**
@@ -238,7 +283,7 @@ public class UserBookServiceTest {
         when(userBookRepository.findByUserAccount(user))
                 .thenReturn(List.of());
 
-        List<UserBookDto> result = userBookService.readUserBooks("emptyuser");
+        List<UserBookDto> result = userBookService.readUserBooks("emptyuser", null);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());

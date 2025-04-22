@@ -43,9 +43,8 @@ data for a seamless book management experience.
 Each user can assign a personal rating (from 1 to 5 stars) to books in their library, 
 accompanied by an optional comment. This feature helps users reflect on their reading 
 experience, highlight favorites, and distinguish between books. The rating system is 
-user-specific and can be used in a future update for filtering or sorting their personal 
-collection. Comments provide context and personal notes, enriching the book data without 
-requiring external reviews.
+user-specific and can be used for filtering their personal collection. Comments provide 
+context and personal notes, enriching the book data without requiring external reviews.
 
 ### OpenLibrary Integration
 
@@ -75,17 +74,17 @@ early adoption.
 
 ## Endpoints (MLP Scope)
 
-| Method | Path                                       | Description                              |
-|--------|--------------------------------------------|------------------------------------------|
-| POST   | /api/users                                 | Create a new user                        |
-| GET    | /api/users/{username}                      | Read user info                           |
-| PUT    | /api/users/{username}                      | Update user's data                       |
-| DELETE | /api/users/{username}                      | Delete user and all assigned books       |
-| POST   | /api/users/{username}/books/{ISBN}         | Add book by ISBN                         |
-| GET    | /api/users/{username}/books                | List all books assigned to a user        |
-| DELETE | /api/users/{username}/books/{ISBN}         | Remove a book by ISBN                    |
-| PATCH  | /api/users/{username}/books/{ISBN}/rating  | Add/update rating & comment              |
-| GET    | /api/books/{isbn}                          | Fetch and read book info via OpenLibrary |
+| Method | Path                                        | Description                                                         |
+|--------|---------------------------------------------|---------------------------------------------------------------------|
+| POST   | /api/users                                  | Create a new user                                                   |
+| GET    | /api/users/{username}                       | Read user info                                                      |
+| PUT    | /api/users/{username}                       | Update user's data                                                  |
+| DELETE | /api/users/{username}                       | Delete user and all assigned books                                  |
+| POST   | /api/users/{username}/books/{ISBN}          | Add book by ISBN                                                    |
+| GET    | /api/users/{username}/books?rating={rating} | List all books assigned to a user with optional rating filter (1-5) |
+| DELETE | /api/users/{username}/books/{ISBN}          | Remove a book by ISBN                                               |
+| PATCH  | /api/users/{username}/books/{ISBN}/rating   | Add/update rating & comment                                         |
+| GET    | /api/books/{isbn}                           | Fetch and read book info via OpenLibrary                            |
 
 > 💡 See [OpenAPI Documentation](openapi/bookmanager_api.yml) for a detailed specification.
 
@@ -414,6 +413,10 @@ curl --request POST \
 ```shell
 curl --request GET \
   --url http://localhost:8080/api/users/testuser/books
+  
+# Optional with rating filter (rating from 1 to 5)
+curl --request GET \
+  --url http://localhost:8080/api/users/testuser/books?rating=5
 ```
 
 ### Remove a specific book from user library

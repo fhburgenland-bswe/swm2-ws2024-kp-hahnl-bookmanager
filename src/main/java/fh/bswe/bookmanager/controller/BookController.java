@@ -55,6 +55,7 @@ public class BookController {
      *         <ul>
      *             <li>{@code 200 OK} if the book was found successfully</li>
      *             <li>{@code 400 BAD_REQUEST} if the book was not found or ISBN is invalid</li>
+     *             <li>{@code 422 Unprocessable Entity} if the input fails validation rules.</li>
      *             <li>{@code 500 INTERNAL_SERVER_ERROR} for unexpected errors</li>
      *         </ul>
      */

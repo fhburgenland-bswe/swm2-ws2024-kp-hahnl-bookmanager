@@ -125,24 +125,32 @@ public class UserBookService {
 
     /**
      * Retrieves a list of books from the library of a specific user.
+     * If a rating filter is applied, only those books will be shown.
      * <p>
      * This method looks up the user by their username. If the user exists,
      * it retrieves all {@link UserBook} associations
      * and maps them to {@link UserBookDto} representations.
      * </p>
      *
-     * @param username the username of the user whose book library is to be retrieved
+     * @param username  the username of the user whose book library is to be retrieved
+     * @param rating    the rating of the books to filter (1-5). If null no filter will be applied.
      * @return a list of {@link UserBookDto} objects representing the user's books
      * @throws UserNotFoundException if no {@link UserAccount} with the given username exists
      */
-    public List<UserBookDto> readUserBooks(final String username) throws UserNotFoundException {
+    public List<UserBookDto> readUserBooks(final String username, final Integer rating) throws UserNotFoundException {
         final Optional<UserAccount> userAccount = userAccountRepository.findByUsername(username);
 
         if (userAccount.isEmpty()) {
             throw new UserNotFoundException();
         }
 
-        final List<UserBook> userBooks = userBookRepository.findByUserAccount(userAccount.get());
+        List<UserBook> userBooks = userBookRepository.findByUserAccount(userAccount.get());
+
+        if (rating != null) {
+            userBooks = userBooks.stream()
+                    .filter(book -> rating.equals(book.getRating()))
+                    .toList();
+        }
 
         return userBooks.stream().map(Mapper::mapToDto).collect(Collectors.toList());
     }
