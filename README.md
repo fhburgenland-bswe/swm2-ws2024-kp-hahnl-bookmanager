@@ -21,6 +21,40 @@ BookManager lets you:
 > 💡 The focus is to reduce data entry friction and offer a joyful minimum experience — 
 > the "Minimum Lovable Product".
 
+### User Management
+
+The application allows users to create and manage personal profiles without authentication. 
+Each user is identified by a unique username and can store their first and last name. 
+Users can update their information, delete their account, and manage a personal book 
+library linked to their profile. This simple user system ensures a multi-user setup 
+while keeping the onboarding process frictionless — ideal for testing, demos, or early-stage 
+adoption.
+
+### Personal Library
+
+Each user has a dedicated personal library where books are stored after being added via 
+ISBN. This library is fully user-specific and includes fetched book metadata along with 
+personal ratings and optional comments. Users can view, update, or remove books at any time. 
+The system ensures no duplicates within a user's library, promoting clean and organized 
+data for a seamless book management experience.
+
+### Rating & Commenting
+
+Each user can assign a personal rating (from 1 to 5 stars) to books in their library, 
+accompanied by an optional comment. This feature helps users reflect on their reading 
+experience, highlight favorites, and distinguish between books. The rating system is 
+user-specific and can be used in a future update for filtering or sorting their personal 
+collection. Comments provide context and personal notes, enriching the book data without 
+requiring external reviews.
+
+### OpenLibrary Integration
+
+BookManager uses the OpenLibrary API to automatically fetch detailed metadata for books 
+based on their ISBN. This includes the title, authors, and a high-quality cover image. 
+The system follows redirects and uses both the main API and the Cover API endpoints to 
+ensure accurate and complete data. This integration minimizes manual input and ensures 
+that each user's library is enriched with trustworthy and visually appealing book information.
+
 ## Real-World Use Case
 
 Users such as students, teachers, or book collectors want a simple, fast tool to digitize and 
@@ -52,6 +86,8 @@ early adoption.
 | DELETE | /api/users/{username}/books/{ISBN}         | Remove a book by ISBN                    |
 | PATCH  | /api/users/{username}/books/{ISBN}/rating  | Add/update rating & comment              |
 | GET    | /api/books/{isbn}                          | Fetch and read book info via OpenLibrary |
+
+> 💡 See [OpenAPI Documentation](openapi/bookmanager_api.yml) for a detailed specification.
 
 ---
 
@@ -106,6 +142,14 @@ helm install bookmanager-service bookmanager/ \
 # Deployment prüfen
 kubectl get pods
 kubectl get svc
+kubectl describe pod -l app.kubernetes.io/name=bookmanager
+```
+
+5. Uninstall the Helm chart:
+
+```shell
+# uninstall bookmanager
+helm uninstall bookmanager-service
 ```
 
 > 📍 See values.yaml for ingress and TLS configuration using cert-manager.
@@ -116,7 +160,7 @@ kubectl get svc
 2. Start minikube
 
 ```shell
-minikube start
+minikube start --driver=docker
 ```
 
 3. Add secret for GHCR credentials:
@@ -245,6 +289,9 @@ development and for SPAs hosted on different domains (e.g., S3 + CloudFront depl
 ---
 
 ## Database
+
+> 💡 See [ER diagram](doc/ER-Model.pdf) and [RM diagram](doc/RM-Model.pdf) for more information
+> about the database layout.
 
 Currently, an H2 In-Memory database is used to store all data. The connection is configured
 within the `application.yml`. You can change the database with adding the appropriate
