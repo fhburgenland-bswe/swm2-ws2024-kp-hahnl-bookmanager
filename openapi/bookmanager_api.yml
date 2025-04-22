@@ -11,7 +11,10 @@ info:
     url: https://opensource.org/license/mit
   version: 1.0.0
 servers:
-  - url: https://localhost:8080/
+  - url: http://localhost:8080/
+    description: Local development
+  - url: https://bookmanager.hahnl.bswe.fh-burgenland.muehlbachler.xyz
+    description: Production environment
 tags:
   - name: user
     description: Operations about User Account
@@ -149,6 +152,14 @@ paths:
           schema:
             type: string
             format: '^[a-zA-Z0-9_]{5,20}$'
+        - name: rating
+          in: query
+          description: Optional rating filter (1-5)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
       responses:
         '200':
           description: Successful operation
@@ -237,8 +248,8 @@ paths:
     patch:
       tags:
         - user
-      summary: Add a rating and comment of a book to the user's personal Library
-      description: Add a rating and comment of a book to the user's personal Library
+      summary: Add/Change rating and comment of a book to/of the user's personal Library
+      description: Add/Change rating and comment of a book to/of the user's personal Library
       operationId: addRatingUsersBooks
       parameters:
         - name: username
@@ -250,13 +261,13 @@ paths:
             format: '^[a-zA-Z0-9_]{5,20}$'
         - name: ISBN
           in: path
-          description: The ISBN of the book to add
+          description: The ISBN of the book
           required: true
           schema:
             type: string
             format: '^\d{10}(\d{3})?$'
       requestBody:
-        description: Add a rating and comment to a book from the users library
+        description: Add/Change rating and comment to a book from the users library
         content:
           application/json:
             schema:
@@ -271,18 +282,16 @@ paths:
                 comment:
                   type: string
                   example: "This is a comment to the book"
-                  nullable: true
+                  nullable: false
       responses:
-        '201':
+        '200':
           description: Book added to personal library
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
+                $ref: '#/components/schemas/UserBook'
         '400':
           description: User or book not existing
-        '409':
-          description: Book was already added to library
         '422':
           description: Validation exception
         default:
@@ -418,3 +427,26 @@ components:
           nullable: true
       required:
         - isbn
+    UserBook:
+      type: object
+      properties:
+        isbn:
+          type: string
+          pattern: '^\d{10}(\d{3})?$'
+          example: "012345678"
+        title:
+          type: string
+          pattern: '^[a-zA-Z]{3,20}$'
+          example: "Herr der Ringe"
+        authors:
+          type: string
+          example: "J.R. Tolkin"
+        rating:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 5
+          example: 1
+        comment:
+          type: string
+          example: "Good book to read"

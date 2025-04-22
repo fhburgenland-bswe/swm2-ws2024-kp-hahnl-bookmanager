@@ -567,9 +567,38 @@ public class UserAccountControllerTest {
         book1.setRating(5);
         book1.setComment("Excellent!");
 
-        when(userBookService.readUserBooks("validuser")).thenReturn(List.of(book1));
+        when(userBookService.readUserBooks("validuser", null)).thenReturn(List.of(book1));
 
         mockMvc.perform(get("/api/users/validuser/books"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].isbn").value("0123456789"))
+                .andExpect(jsonPath("$[0].title").value("Test Book"))
+                .andExpect(jsonPath("$[0].author").value("Test Author"))
+                .andExpect(jsonPath("$[0].rating").value(5))
+                .andExpect(jsonPath("$[0].comment").value("Excellent!"));
+    }
+
+    /**
+     * Tests successful retrieval of a user's book library with rating filter.
+     * <p>
+     * Expects HTTP 200 OK and a list of {@link UserBookDto} in JSON format.
+     * </p>
+     *
+     * @throws Exception if the request fails
+     */
+    @Test
+    void testReadUserBooksLibraryRatingSuccess() throws Exception {
+        UserBookDto book1 = new UserBookDto();
+        book1.setIsbn("0123456789");
+        book1.setTitle("Test Book");
+        book1.setAuthor("Test Author");
+        book1.setRating(5);
+        book1.setComment("Excellent!");
+
+        when(userBookService.readUserBooks("validuser", 5)).thenReturn(List.of(book1));
+
+        mockMvc.perform(get("/api/users/validuser/books?rating=5"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].isbn").value("0123456789"))
@@ -589,7 +618,7 @@ public class UserAccountControllerTest {
      */
     @Test
     void testReadUserBooksLibraryUserNotFound() throws Exception {
-        when(userBookService.readUserBooks("unknownuser")).thenThrow(new UserNotFoundException());
+        when(userBookService.readUserBooks("unknownuser", null)).thenThrow(new UserNotFoundException());
 
         mockMvc.perform(get("/api/users/unknownuser/books"))
                 .andExpect(status().isBadRequest());
